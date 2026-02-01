@@ -12,3 +12,7 @@
 - [x] Configure SQLite + migrations
 
 - [x] "Hello Captain" route
+
+- [x] Implement Tailwind CSS build pipeline
+
+
