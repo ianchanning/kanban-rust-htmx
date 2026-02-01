@@ -15,4 +15,8 @@
 
 - [x] Implement Tailwind CSS build pipeline
 
+- [x] Verify Ledger integration on all mutations (Implemented append_event helper)
+
+
+
 

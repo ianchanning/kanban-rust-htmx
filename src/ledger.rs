@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
+use sqlx::{FromRow, SqliteExecutor, Result};
 use std::fmt;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -66,4 +66,30 @@ impl EventLog {
     pub fn kind(&self) -> EventType {
         EventType::from(self.event_type.as_str())
     }
+}
+
+pub async fn append_event<'e, E>(
+    executor: E,
+    event_type: &EventType,
+    payload: &impl Serialize,
+) -> Result<i64>
+where
+    E: SqliteExecutor<'e>,
+{
+    let payload_json = serde_json::to_string(payload).unwrap_or_else(|_| "{}".to_string());
+    let type_str = event_type.to_string();
+
+    let row = sqlx::query!(
+        r#"
+        INSERT INTO event_log (timestamp, event_type, payload)
+        VALUES (datetime('now'), ?, ?)
+        RETURNING id
+        "#,
+        type_str,
+        payload_json
+    )
+    .fetch_one(executor)
+    .await?;
+
+    Ok(row.id)
 }

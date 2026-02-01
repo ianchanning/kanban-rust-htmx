@@ -16,7 +16,7 @@
 
 - [x] Initialize Rust workspace (Axum, SQLx, Tokio)
 - [x] Configure SQLite + migrations
-- [ ] Verify Ledger integration on all mutations
+- [x] Verify Ledger integration on all mutations
 - [x] Implement Tailwind CSS build pipeline
 - [x] "Hello Captain" route
 
