@@ -1,0 +1,9 @@
+# Progress Log - Project Reaper
+
+## Phase 0: The Ledger (Foundational Law)
+- [x] Create `event_log` table (append-only)
+- [x] Enforce write-only semantics at the DB layer (Triggers)
+
+## Phase 1: The Hull (Foundation)
+- [x] Initialize Rust workspace (Axum, SQLx, Tokio)
+- [x] Configure SQLite + migrations

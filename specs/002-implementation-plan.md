@@ -6,16 +6,16 @@
 
 ## Phase 0: The Ledger (Foundational Law)
 
-- [ ] Create `event_log` table (append-only)
+- [x] Create `event_log` table (append-only)
 - [ ] Define event schema and types
-- [ ] Enforce write-only semantics at the DB layer
+- [x] Enforce write-only semantics at the DB layer
 
 ---
 
 ## Phase 1: The Hull (Foundation)
 
-- [ ] Initialize Rust workspace (Axum, SQLx, Tokio)
-- [ ] Configure SQLite + migrations
+- [x] Initialize Rust workspace (Axum, SQLx, Tokio)
+- [x] Configure SQLite + migrations
 - [ ] Verify Ledger integration on all mutations
 - [ ] Implement Tailwind CSS build pipeline
 - [ ] "Hello Captain" route
