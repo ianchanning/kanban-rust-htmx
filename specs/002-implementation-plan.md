@@ -18,7 +18,7 @@
 - [x] Configure SQLite + migrations
 - [ ] Verify Ledger integration on all mutations
 - [ ] Implement Tailwind CSS build pipeline
-- [ ] "Hello Captain" route
+- [x] "Hello Captain" route
 
 ---
 

@@ -1,0 +1,38 @@
+   Compiling workspace v0.1.0 (/workspace)
+warning: unused import: `SqliteConnectOptions`
+ --> src/main.rs:5:32
+  |
+5 | use sqlx::sqlite::{SqlitePool, SqliteConnectOptions};
+  |                                ^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: enum `EventType` is never used
+ --> src/ledger.rs:6:10
+  |
+6 | pub enum EventType {
+  |          ^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: struct `EventLog` is never constructed
+  --> src/ledger.rs:56:12
+   |
+56 | pub struct EventLog {
+   |            ^^^^^^^^
+
+warning: method `kind` is never used
+  --> src/ledger.rs:66:12
+   |
+65 | impl EventLog {
+   | ------------- method in this implementation
+66 |     pub fn kind(&self) -> EventType {
+   |            ^^^^
+
+warning: `workspace` (bin "workspace") generated 4 warnings (run `cargo fix --bin "workspace" -p workspace` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.11s
+     Running `target/debug/workspace`
+Running migrations...
+Migrations passed.
+VERIFICATION: event_log table exists.
+Listening on 0.0.0.0:3000

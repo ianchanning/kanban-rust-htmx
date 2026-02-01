@@ -6,5 +6,9 @@
 - [x] Define event schema and types (Rust structs)
 
 ## Phase 1: The Hull (Foundation)
+
 - [x] Initialize Rust workspace (Axum, SQLx, Tokio)
+
 - [x] Configure SQLite + migrations
+
+- [x] "Hello Captain" route
