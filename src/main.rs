@@ -3,6 +3,8 @@ use sqlx::migrate::Migrator;
 use std::str::FromStr;
 use std::path::Path;
 
+mod ledger;
+
 static MIGRATOR: Migrator = sqlx::migrate!();
 
 #[tokio::main]

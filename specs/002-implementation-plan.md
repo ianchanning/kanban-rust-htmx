@@ -7,7 +7,7 @@
 ## Phase 0: The Ledger (Foundational Law)
 
 - [x] Create `event_log` table (append-only)
-- [ ] Define event schema and types
+- [x] Define event schema and types
 - [x] Enforce write-only semantics at the DB layer
 
 ---

@@ -1,0 +1,69 @@
+use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
+use std::fmt;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum EventType {
+    MOVE,
+    CREATE,
+    ASSIGN,
+    FAIL,
+    REWIND,
+    // Fallback for unknown types if schema evolves
+    UNKNOWN(String),
+}
+
+impl fmt::Display for EventType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            EventType::MOVE => write!(f, "MOVE"),
+            EventType::CREATE => write!(f, "CREATE"),
+            EventType::ASSIGN => write!(f, "ASSIGN"),
+            EventType::FAIL => write!(f, "FAIL"),
+            EventType::REWIND => write!(f, "REWIND"),
+            EventType::UNKNOWN(s) => write!(f, "{}", s),
+        }
+    }
+}
+
+impl From<String> for EventType {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "MOVE" => EventType::MOVE,
+            "CREATE" => EventType::CREATE,
+            "ASSIGN" => EventType::ASSIGN,
+            "FAIL" => EventType::FAIL,
+            "REWIND" => EventType::REWIND,
+            _ => EventType::UNKNOWN(s),
+        }
+    }
+}
+
+impl From<&str> for EventType {
+    fn from(s: &str) -> Self {
+        match s {
+            "MOVE" => EventType::MOVE,
+            "CREATE" => EventType::CREATE,
+            "ASSIGN" => EventType::ASSIGN,
+            "FAIL" => EventType::FAIL,
+            "REWIND" => EventType::REWIND,
+            _ => EventType::UNKNOWN(s.to_string()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
+pub struct EventLog {
+    pub id: i64,
+    pub timestamp: String, // ISO-8601 stored as text
+    #[sqlx(try_from = "String")] 
+    pub event_type: String, // Storing as String to simplify DB mapping for now, or could impl Type
+    pub payload: String, // JSON string
+}
+
+// Helper to convert internal String to Enum
+impl EventLog {
+    pub fn kind(&self) -> EventType {
+        EventType::from(self.event_type.as_str())
+    }
+}

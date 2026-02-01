@@ -3,6 +3,7 @@
 ## Phase 0: The Ledger (Foundational Law)
 - [x] Create `event_log` table (append-only)
 - [x] Enforce write-only semantics at the DB layer (Triggers)
+- [x] Define event schema and types (Rust structs)
 
 ## Phase 1: The Hull (Foundation)
 - [x] Initialize Rust workspace (Axum, SQLx, Tokio)
