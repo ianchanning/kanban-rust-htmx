@@ -17,6 +17,6 @@
 
 - [x] Verify Ledger integration on all mutations (Implemented append_event helper)
 
+## Phase 2: The Deck (The Board)
 
-
-
+- [x] Create Database Schema: `notes`, `wip_groups`.

@@ -79,17 +79,17 @@ where
     let payload_json = serde_json::to_string(payload).unwrap_or_else(|_| "{}".to_string());
     let type_str = event_type.to_string();
 
-    let row = sqlx::query!(
+    let row: (i64,) = sqlx::query_as(
         r#"
         INSERT INTO event_log (timestamp, event_type, payload)
         VALUES (datetime('now'), ?, ?)
         RETURNING id
         "#,
-        type_str,
-        payload_json
     )
+    .bind(type_str)
+    .bind(payload_json)
     .fetch_one(executor)
     .await?;
 
-    Ok(row.id)
+    Ok(row.0)
 }
