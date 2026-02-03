@@ -27,3 +27,4 @@
 ## Phase 3: The Pulse (The Heartbeat)
 
 - [x] Create Sprite Registry: Track active sigils (🦂A, etc., TTL)
+- [x] Implement HTMX OOB Updates: Endpoints for sigil status fragments.

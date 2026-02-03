@@ -34,7 +34,7 @@
 ## Phase 3: The Pulse (The Heartbeat)
 
 - [x] Create Sprite Registry: Track active sigils (🦂A, etc., TTL)
-- [ ] Implement HTMX OOB Updates: Endpoints for sigil status fragments.
+- [x] Implement HTMX OOB Updates: Endpoints for sigil status fragments.
 - [ ] Build the Heartbeat Watchdog: Background task to check Sprite TTLs.
 - [ ] Integrate Sigil UI: Display live status next to WIP Groups.
 

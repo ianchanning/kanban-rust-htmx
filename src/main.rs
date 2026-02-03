@@ -1,20 +1,21 @@
 use axum::{
     routing::{get, post, put, delete},
     extract::{State, Path, Json},
-    response::IntoResponse,
+    response::{IntoResponse, Html},
     http::StatusCode,
     Router,
 };
 use sqlx::sqlite::{SqlitePool};
 use sqlx::migrate::Migrator;
 use std::path::Path as FilePath; // Alias to avoid conflict with axum::extract::Path
+use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 use tracing::info;
 
 mod ledger;
 mod models;
 
-use models::{Note, CreateNote, UpdateNote, ReorderNote, WipGroup, CreateWipGroup, UpdateWipGroup, EventType};
+use models::{Note, CreateNote, UpdateNote, ReorderNote, WipGroup, CreateWipGroup, UpdateWipGroup, EventType, Sprite, UpdateSpriteStatus};
 
 static MIGRATOR: Migrator = sqlx::migrate!();
 
@@ -61,6 +62,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/notes/:id/reorder", put(reorder_note))
         .route("/api/wip_groups", post(create_wip_group).get(list_wip_groups))
         .route("/api/wip_groups/:id", get(get_wip_group).put(update_wip_group).delete(delete_wip_group))
+        // HTMX Endpoints
+        .route("/htmx/sprites", get(get_sprite_statuses))
+        .route("/htmx/sprites/:id/status", put(update_sprite_status))
+        .route("/htmx/sprites/:id", get(get_sprite_fragment))
         .with_state(pool)
         .fallback_service(ServeDir::new("public"));
 
@@ -71,7 +76,92 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+// HTMX Handlers
+async fn get_sprite_statuses(
+    State(pool): State<SqlitePool>,
+) -> impl IntoResponse {
+    match Sprite::find_all(&pool).await {
+        Ok(sprites) => {
+            let mut html = String::new();
+            for sprite in sprites {
+                let status_color = match sprite.status.as_str() {
+                    "Idle" => "bg-gray-500",
+                    "Busy" => "bg-yellow-500",
+                    "Done" => "bg-green-500",
+                    "Failed" => "bg-red-500",
+                    _ => "bg-gray-600",
+                };
+                html.push_str(&format!(
+                    r#"<div id="sprite-{}" class="flex items-center space-x-2 p-1 border-b border-gray-600">
+                        <span class="font-mono text-lg">{}</span>
+                        <span class="{} w-3 h-3 rounded-full"></span>
+                        <span class="text-sm text-gray-400">{}</span>
+                    </div>"#,
+                    sprite.id, sprite.sigil, status_color, sprite.status
+                ));
+            }
+            Html(html)
+        },
+        Err(_) => Html("<div>Error loading sprites</div>".to_string()),
+    }
+}
 
+async fn update_sprite_status(
+    State(pool): State<SqlitePool>,
+    Path(id): Path<String>,
+    Json(payload): Json<UpdateSpriteStatus>,
+) -> impl IntoResponse {
+    match Sprite::update_status(&pool, &id, payload.status, EventType::SpriteUpdated).await {
+        Ok(Some(sprite)) => {
+            let status_color = match sprite.status.as_str() {
+                "Idle" => "bg-gray-500",
+                "Busy" => "bg-yellow-500",
+                "Done" => "bg-green-500",
+                "Failed" => "bg-red-500",
+                _ => "bg-gray-600",
+            };
+            let html = format!(
+                r#"<div id="sprite-{}" class="flex items-center space-x-2 p-1 border-b border-gray-600" hx-swap-oob="true">
+                    <span class="font-mono text-lg">{}</span>
+                    <span class="{} w-3 h-3 rounded-full"></span>
+                    <span class="text-sm text-gray-400">{}</span>
+                </div>"#,
+                sprite.id, sprite.sigil, status_color, sprite.status
+            );
+            Html(html)
+        },
+        Ok(None) => (StatusCode::NOT_FOUND, "Sprite not found").into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+async fn get_sprite_fragment(
+    State(pool): State<SqlitePool>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match Sprite::find_by_id(&pool, &id).await {
+        Ok(Some(sprite)) => {
+            let status_color = match sprite.status.as_str() {
+                "Idle" => "bg-gray-500",
+                "Busy" => "bg-yellow-500",
+                "Done" => "bg-green-500",
+                "Failed" => "bg-red-500",
+                _ => "bg-gray-600",
+            };
+            let html = format!(
+                r#"<div id="sprite-{}" class="flex items-center space-x-2 p-1 border-b border-gray-600" hx-swap-oob="true">
+                    <span class="font-mono text-lg">{}</span>
+                    <span class="{} w-3 h-3 rounded-full"></span>
+                    <span class="text-sm text-gray-400">{}</span>
+                </div>"#,
+                sprite.id, sprite.sigil, status_color, sprite.status
+            );
+            Html(html)
+        },
+        Ok(None) => (StatusCode::NOT_FOUND, "Sprite not found").into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
 
 // Note Handlers
 async fn create_note(
@@ -123,10 +213,6 @@ async fn delete_note(
     match Note::delete(&pool, id, EventType::NoteDeleted).await {
         Ok(true) => StatusCode::NO_CONTENT.into_response(),
         Ok(false) => StatusCode::NOT_FOUND.into_response(),
-        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
-    }
-}
-
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }
