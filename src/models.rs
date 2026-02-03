@@ -116,6 +116,7 @@ pub struct CreateWipGroup {
     pub position: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateWipGroup {
     pub name: Option<String>,
     pub position: Option<i64>,
@@ -126,10 +127,122 @@ pub struct Sprite {
     pub id: String, // ULID
     pub sigil: String,
     pub status: String,
-    pub wip_group_id: Option<String>,
+    pub wip_group_id: Option<i64>,
     pub last_seen: String, // ISO-8601 stored as text
     pub created_at: String, // ISO-8601 stored as text
     pub updated_at: String, // ISO-8601 stored as text
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CreateSprite {
+    pub id: String,
+    pub sigil: String,
+    pub wip_group_id: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateSpriteStatus {
+    pub status: String,
+}
+
+// CRUD operations for Sprite
+impl Sprite {
+    pub async fn create(
+        pool: &SqlitePool,
+        new_sprite: CreateSprite,
+        event_type: EventType,
+    ) -> Result<Sprite, sqlx::Error> {
+        let mut tx = pool.begin().await?;
+        let res = sqlx::query_as!(
+            Sprite,
+            r#"
+            INSERT INTO sprites (id, sigil, wip_group_id)
+            VALUES (?, ?, ?)
+            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            "#,
+            new_sprite.id,
+            new_sprite.sigil,
+            new_sprite.wip_group_id
+        )
+        .fetch_one(&mut *tx)
+        .await?;
+
+        // Append event to ledger
+        crate::ledger::append_event(&mut tx, &event_type, &res).await?;
+
+        tx.commit().await?;
+        Ok(res)
+    }
+
+    pub async fn find_all(pool: &SqlitePool) -> Result<Vec<Sprite>, sqlx::Error> {
+        sqlx::query_as!(
+            Sprite,
+            r#"
+            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            FROM sprites
+            "#
+        )
+        .fetch_all(pool)
+        .await
+    }
+
+    pub async fn find_by_id<'e, E>(executor: E, id: &str) -> Result<Option<Sprite>, sqlx::Error>
+    where
+        E: sqlx::Executor<'e, Database = sqlx::Sqlite>,
+    {
+        sqlx::query_as!(
+            Sprite,
+            r#"
+            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            FROM sprites
+            WHERE id = ?
+            "#,
+            id
+        )
+        .fetch_optional(executor)
+        .await
+    }
+
+    pub async fn update_status(
+        pool: &SqlitePool,
+        id: &str,
+        status: String,
+        event_type: EventType,
+    ) -> Result<Option<Sprite>, sqlx::Error> {
+        let mut tx = pool.begin().await?;
+        
+        let res = sqlx::query_as!(
+            Sprite,
+            r#"
+            UPDATE sprites
+            SET status = ?, last_seen = CURRENT_TIMESTAMP
+            WHERE id = ?
+            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            "#,
+            status,
+            id
+        )
+        .fetch_optional(&mut *tx)
+        .await?;
+
+        if let Some(ref sprite) = res {
+            // Append event to ledger
+            crate::ledger::append_event(&mut tx, &event_type, sprite).await?;
+        }
+
+        tx.commit().await?;
+        Ok(res)
+    }
+
+    pub async fn update_heartbeat(pool: &SqlitePool, id: &str) -> Result<bool, sqlx::Error> {
+        let result = sqlx::query!(
+            "UPDATE sprites SET last_seen = CURRENT_TIMESTAMP WHERE id = ?",
+            id
+        )
+        .execute(pool)
+        .await?;
+        Ok(result.rows_affected() == 1)
+    }
 }
 
 // CRUD operations for Note

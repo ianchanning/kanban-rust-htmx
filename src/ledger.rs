@@ -1,56 +1,10 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, SqliteExecutor, Result};
-use std::fmt;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub enum EventType {
-    MOVE,
-    CREATE,
-    ASSIGN,
-    FAIL,
-    REWIND,
-    // Fallback for unknown types if schema evolves
-    UNKNOWN(String),
-}
+// Use EventType from models
+use crate::models::EventType;
 
-impl fmt::Display for EventType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            EventType::MOVE => write!(f, "MOVE"),
-            EventType::CREATE => write!(f, "CREATE"),
-            EventType::ASSIGN => write!(f, "ASSIGN"),
-            EventType::FAIL => write!(f, "FAIL"),
-            EventType::REWIND => write!(f, "REWIND"),
-            EventType::UNKNOWN(s) => write!(f, "{}", s),
-        }
-    }
-}
-
-impl From<String> for EventType {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "MOVE" => EventType::MOVE,
-            "CREATE" => EventType::CREATE,
-            "ASSIGN" => EventType::ASSIGN,
-            "FAIL" => EventType::FAIL,
-            "REWIND" => EventType::REWIND,
-            _ => EventType::UNKNOWN(s),
-        }
-    }
-}
-
-impl From<&str> for EventType {
-    fn from(s: &str) -> Self {
-        match s {
-            "MOVE" => EventType::MOVE,
-            "CREATE" => EventType::CREATE,
-            "ASSIGN" => EventType::ASSIGN,
-            "FAIL" => EventType::FAIL,
-            "REWIND" => EventType::REWIND,
-            _ => EventType::UNKNOWN(s.to_string()),
-        }
-    }
-}
+// ... (rest of the file remains the same)
 
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct EventLog {
@@ -74,7 +28,7 @@ pub async fn append_event<'e, E>(
     payload: &impl Serialize,
 ) -> Result<i64>
 where
-    E: SqliteExecutor<'e>,
+    E: sqlx::Executor<'e, Database = sqlx::Sqlite>,
 {
     let payload_json = serde_json::to_string(payload).unwrap_or_else(|_| "{}".to_string());
     let type_str = event_type.to_string();
