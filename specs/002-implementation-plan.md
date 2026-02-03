@@ -26,7 +26,7 @@
 
 - [x] Create Database Schema: `notes`, `wip_groups`.
 - [x] Implement CRUD for `Notes` (Titles and Colors only).
-- [ ] Build the Main Dashboard: Multi-column layout with Tailwind (Submarine Vibe).
+- [x] Build the Main Dashboard: Multi-column layout with Tailwind (Submarine Vibe).
 - [ ] Implement Spatial Reordering: Simple reordering logic (move up/down).
 
 ---
