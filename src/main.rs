@@ -14,7 +14,7 @@ use tracing::info;
 mod ledger;
 mod models;
 
-use models::{Note, CreateNote, UpdateNote, WipGroup, CreateWipGroup, UpdateWipGroup, EventType};
+use models::{Note, CreateNote, UpdateNote, ReorderNote, WipGroup, CreateWipGroup, UpdateWipGroup, EventType};
 
 static MIGRATOR: Migrator = sqlx::migrate!();
 
@@ -58,6 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/api/notes", post(create_note).get(list_notes))
         .route("/api/notes/:id", get(get_note).put(update_note).delete(delete_note))
+        .route("/api/notes/:id/reorder", put(reorder_note))
         .route("/api/wip_groups", post(create_wip_group).get(list_wip_groups))
         .route("/api/wip_groups/:id", get(get_wip_group).put(update_wip_group).delete(delete_wip_group))
         .with_state(pool)
@@ -122,6 +123,22 @@ async fn delete_note(
     match Note::delete(&pool, id, EventType::NoteDeleted).await {
         Ok(true) => StatusCode::NO_CONTENT.into_response(),
         Ok(false) => StatusCode::NOT_FOUND.into_response(),
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+        Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+async fn reorder_note(
+    State(pool): State<SqlitePool>,
+    Path(id): Path<i64>,
+    Json(payload): Json<ReorderNote>,
+) -> impl IntoResponse {
+    match Note::reorder(&pool, id, payload.new_position, EventType::NoteUpdated).await {
+        Ok(Some(note)) => (StatusCode::OK, Json(note)).into_response(),
+        Ok(None) => StatusCode::NOT_FOUND.into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }

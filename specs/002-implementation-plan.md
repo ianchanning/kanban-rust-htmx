@@ -27,13 +27,13 @@
 - [x] Create Database Schema: `notes`, `wip_groups`.
 - [x] Implement CRUD for `Notes` (Titles and Colors only).
 - [x] Build the Main Dashboard: Multi-column layout with Tailwind (Submarine Vibe).
-- [ ] Implement Spatial Reordering: Simple reordering logic (move up/down).
+- [x] Implement Spatial Reordering: Simple reordering logic (move up/down).
 
 ---
 
 ## Phase 3: The Pulse (The Heartbeat)
 
-- [ ] Create Sprite Registry: Track active sigils (🦂A, etc., TTL)
+- [x] Create Sprite Registry: Track active sigils (🦂A, etc., TTL)
 - [ ] Implement HTMX OOB Updates: Endpoints for sigil status fragments.
 - [ ] Build the Heartbeat Watchdog: Background task to check Sprite TTLs.
 - [ ] Integrate Sigil UI: Display live status next to WIP Groups.
