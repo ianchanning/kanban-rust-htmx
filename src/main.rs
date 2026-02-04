@@ -213,8 +213,26 @@ async fn update_note(
     Path(id): Path<i64>,
     Json(payload): Json<UpdateNote>,
 ) -> impl IntoResponse {
-    match Note::update(&pool, id, payload, EventType::NoteUpdated).await {
-        Ok(Some(note)) => (StatusCode::OK, Json(note)).into_response(),
+    let current_note = match Note::find_by_id(&pool, id).await {
+        Ok(Some(note)) => note,
+        Ok(None) => return StatusCode::NOT_FOUND.into_response(),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    };
+
+    let old_wip_group_id = current_note.wip_group_id;
+
+    match Note::update(&pool, id, payload.clone(), EventType::NoteUpdated).await {
+        Ok(Some(note)) => {
+            // Check if wip_group_id changed
+            if let Some(new_wip_group_id) = payload.wip_group_id {
+                if new_wip_group_id != old_wip_group_id {
+                    tokio::spawn(async {
+                        run_git_clean_room().await;
+                    });
+                }
+            }
+            (StatusCode::OK, Json(note)).into_response()
+        },
         Ok(None) => StatusCode::NOT_FOUND.into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
@@ -394,6 +412,7 @@ async fn get_kanban_board_html(
     }
 }
 
+
 // Heartbeat Watchdog Task
 async fn heartbeat_watchdog(pool: SqlitePool) {
     let mut interval = time::interval(Duration::from_secs(30)); // Check every 30 seconds
@@ -425,6 +444,55 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
             Err(e) => {
                 eprintln!("Heartbeat watchdog: Error deleting expired sprites: {:?}", e);
             }
+        }
+    }
+}
+
+async fn run_git_clean_room() {
+    info!("Executing Sprite Clean-Room Protocol: git reset --hard && git clean -fd");
+    let output_reset = tokio::process::Command::new("git")
+        .arg("reset")
+        .arg("--hard")
+        .output()
+        .await;
+
+    match output_reset {
+        Ok(output) => {
+            if !output.status.success() {
+                eprintln!("git reset --hard failed: {:?}", output);
+                eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+            } else {
+                info!("git reset --hard successful.");
+                info!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                info!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+            }
+        },
+        Err(e) => {
+            eprintln!("Failed to execute git reset --hard: {:?}", e);
+        }
+    }
+
+    let output_clean = tokio::process::Command::new("git")
+        .arg("clean")
+        .arg("-fd")
+        .output()
+        .await;
+
+    match output_clean {
+        Ok(output) => {
+            if !output.status.success() {
+                eprintln!("git clean -fd failed: {:?}", output);
+                eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+            } else {
+                info!("git clean -fd successful.");
+                info!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                info!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+            }
+        },
+        Err(e) => {
+            eprintln!("Failed to execute git clean -fd: {:?}", e);
         }
     }
 }

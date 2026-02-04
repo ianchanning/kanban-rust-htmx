@@ -41,7 +41,7 @@
 
 - [x] Implement the "Red Handle" Trigger: UI button to reset state.
 - [x] Backend Emergency Blow (stateless rebuild)
-- [ ] Sprite Clean-Room Protocol: Automated `git reset --hard` hooks when switching notes.
+- [x] Sprite Clean-Room Protocol: Automated `git reset --hard` hooks when switching notes.
 - [ ] Optional Integration: Connect the Red Handle to `lsprite.sh` logic (if possible via environment/shell).
 
 ## Deployment & Verification
@@ -50,6 +50,11 @@
 - [ ] SQLx query verification in CI
 - [ ] Simulated Sprite death (Depth-Crush test)
 - [ ] Browser reload + network interruption tests
+
+---
+
+## Commit: lynx-alpha - Implemented Sprite Clean-Room Protocol
+Implemented the automated `git reset --hard` and `git clean -fd` hooks to run when a note's `wip_group_id` is changed via the `update_note` API endpoint. This ensures the Sprite's environment is cleaned to prevent context leakage as per the Bulkhead Failure protocol in `SPEC.md`.
 
 ---
 
