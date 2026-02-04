@@ -29,6 +29,13 @@
             <!-- Sidebar for Sprites -->
             <div class="col-span-2 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
                 <h2 class="text-xl font-semibold mb-4 text-teal-400">Sprite Monitor</h2>
+                <!-- Red Handle Trigger -->
+                <button hx-post="/api/admin/rewind"
+                        hx-confirm="Are you sure you want to trigger the Emergency Blow (rewind state)? This will reset all Kanban data."
+                        hx-swap="none"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4">
+                    EMERGENCY BLOW (Rewind State)
+                </button>
                 <div id="sprite-status-container" 
                      hx-get="/htmx/sprites" 
                      hx-trigger="load, every 2s" 
