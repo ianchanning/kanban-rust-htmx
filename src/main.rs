@@ -9,8 +9,10 @@ use sqlx::sqlite::{SqlitePool};
 use sqlx::migrate::Migrator;
 use std::path::Path as FilePath; // Alias to avoid conflict with axum::extract::Path
 use tokio::net::TcpListener;
+use tokio::time; // Added for heartbeat watchdog
 use tower_http::services::ServeDir;
 use tracing::info;
+use std::time::Duration; // Added for heartbeat watchdog
 
 mod ledger;
 mod models;
@@ -71,6 +73,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = TcpListener::bind("0.0.0.0:3000").await?;
     info!("Listening on {}", listener.local_addr()?);
+
+    // Spawn the heartbeat watchdog task
+    let watchdog_pool = pool.clone();
+    tokio::spawn(async move {
+        heartbeat_watchdog(watchdog_pool).await;
+    });
+
     axum::serve(listener, app).await?;
 
     Ok(())
@@ -280,5 +289,40 @@ async fn delete_wip_group(
         Ok(true) => StatusCode::NO_CONTENT.into_response(),
         Ok(false) => StatusCode::NOT_FOUND.into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+// Heartbeat Watchdog Task
+async fn heartbeat_watchdog(pool: SqlitePool) {
+    let mut interval = time::interval(Duration::from_secs(30)); // Check every 30 seconds
+    let expiration_threshold_minutes = 5; // Sprites expire after 5 minutes of no activity
+
+    loop {
+        interval.tick().await;
+        info!("Heartbeat watchdog: Checking for expired sprites...");
+
+        let result = sqlx::query!(
+            r#"
+            DELETE FROM sprites
+            WHERE last_seen < datetime('now', ? || ' minutes ago')
+            "#,
+            -expiration_threshold_minutes
+        )
+        .execute(&pool)
+        .await;
+
+        match result {
+            Ok(query_result) => {
+                let rows_affected = query_result.rows_affected();
+                if rows_affected > 0 {
+                    info!("Heartbeat watchdog: Removed {} expired sprites.", rows_affected);
+                } else {
+                    info!("Heartbeat watchdog: No expired sprites found.");
+                }
+            }
+            Err(e) => {
+                eprintln!("Heartbeat watchdog: Error deleting expired sprites: {:?}", e);
+            }
+        }
     }
 }

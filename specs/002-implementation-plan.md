@@ -35,7 +35,7 @@
 
 - [x] Create Sprite Registry: Track active sigils (🦂A, etc., TTL)
 - [x] Implement HTMX OOB Updates: Endpoints for sigil status fragments.
-- [ ] Build the Heartbeat Watchdog: Background task to check Sprite TTLs.
+- [x] Build the Heartbeat Watchdog: Background task to check Sprite TTLs.
 - [ ] Integrate Sigil UI: Display live status next to WIP Groups.
 
 ---

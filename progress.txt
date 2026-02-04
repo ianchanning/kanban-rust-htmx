@@ -28,3 +28,32 @@
 
 - [x] Create Sprite Registry: Track active sigils (🦂A, etc., TTL)
 - [x] Implement HTMX OOB Updates: Endpoints for sigil status fragments.
+- [x] Build the Heartbeat Watchdog: Background task to check Sprite TTLs.
+
+## Phase 4: The Safety Net
+
+- [ ] Implement Event Middleware: Every state change must append to `event_log`.
+- [ ] Build the "Rewind" Logic: Functionality to reconstruct state from the ledger.
+- [ ] Implement the "Sonar Ping": UI mechanism to re-sync state on reconnect.
+
+## Phase 5: The Red Handle (Emergency Blow)
+
+- [ ] Implement the "Red Handle" Trigger: UI button to reset state.
+- [ ] Backend Emergency Blow (stateless rebuild)
+- [ ] Sprite Clean-Room Protocol: Automated `git reset --hard` hooks when switching notes.
+- [ ] Optional Integration: Connect the Red Handle to `lsprite.sh` logic (if possible via environment/shell).
+
+## Deployment & Verification
+
+- [ ] Build via `lsprite.sh build`
+- [ ] SQLx query verification in CI
+- [ ] Simulated Sprite death (Depth-Crush test)
+- [ ] Browser reload + network interruption tests
+
+---
+
+## Constraints
+
+- HTMX must never perform primary state transitions
+- UI is reflection, not authority
+- All recovery paths must flow through the Ledger
