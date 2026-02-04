@@ -243,6 +243,23 @@ impl Sprite {
         .await?;
         Ok(result.rows_affected() == 1)
     }
+
+    pub async fn find_by_wip_group_id(
+        pool: &SqlitePool,
+        wip_group_id: i64,
+    ) -> Result<Vec<Sprite>, sqlx::Error> {
+        sqlx::query_as!(
+            Sprite,
+            r#"
+            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            FROM sprites
+            WHERE wip_group_id = ?
+            "#,
+            wip_group_id
+        )
+        .fetch_all(pool)
+        .await
+    }
 }
 
 // CRUD operations for Note
@@ -454,6 +471,24 @@ impl Note {
 
         tx.commit().await?;
         Ok(updated_note)
+    }
+
+    pub async fn find_by_wip_group_id(
+        pool: &SqlitePool,
+        wip_group_id: i64,
+    ) -> Result<Vec<Note>, sqlx::Error> {
+        sqlx::query_as!(
+            Note,
+            r#"
+            SELECT id, title, color, wip_group_id, position, status, created_at, updated_at
+            FROM notes
+            WHERE wip_group_id = ?
+            ORDER BY position
+            "#,
+            wip_group_id
+        )
+        .fetch_all(pool)
+        .await
     }
 }
 
