@@ -51,7 +51,7 @@
 ## Phase 5: The Red Handle (Emergency Blow)
 
 - [x] Implement the "Red Handle" Trigger: UI button to reset state.
-- [ ] Backend Emergency Blow (stateless rebuild)
+- [x] Backend Emergency Blow (stateless rebuild)
 - [ ] Sprite Clean-Room Protocol: Automated `git reset --hard` hooks when switching notes.
 - [ ] Optional Integration: Connect the Red Handle to `lsprite.sh` logic (if possible via environment/shell).
 

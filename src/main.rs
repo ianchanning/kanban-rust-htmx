@@ -67,6 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/wip_groups/:id", get(get_wip_group).put(update_wip_group).delete(delete_wip_group))
         // Admin Endpoints
         .route("/api/admin/rewind", post(admin_rewind)) // New Admin endpoint for rewind logic
+        .route("/api/admin/emergency-blow", post(admin_emergency_blow)) // New Admin endpoint for emergency blow
         // HTMX Endpoints
         .route("/htmx/sprites", get(get_sprite_statuses))
         .route("/htmx/sprites/:id/status", put(update_sprite_status))
@@ -304,6 +305,18 @@ async fn admin_rewind(
         Err(e) => {
             eprintln!("Error during rewind: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, format!("Rewind failed: {}", e)).into_response()
+        }
+    }
+}
+
+async fn admin_emergency_blow(
+    State(pool): State<SqlitePool>,
+) -> impl IntoResponse {
+    match rewind::truncate_tables(&pool).await {
+        Ok(_) => (StatusCode::OK, "Emergency Blow successful: All application data cleared.").into_response(),
+        Err(e) => {
+            eprintln!("Error during Emergency Blow: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Emergency Blow failed: {}", e)).into_response()
         }
     }
 }
