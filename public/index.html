@@ -10,6 +10,9 @@
 <body class="bg-gray-900 text-gray-100 font-mono leading-normal tracking-normal">
     <div class="container mx-auto p-4">
         <h1 class="text-4xl font-bold mb-8 text-center text-blue-400">The Kanban Forge</h1>
+        <div id="connection-status" class="text-center text-sm mb-4">
+            <span class="text-green-500">Online</span>
+        </div>
         
         <div class="grid grid-cols-12 gap-4">
             <!-- Main Kanban Board -->
@@ -36,5 +39,47 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const connectionStatusDiv = document.getElementById('connection-status');
+            const kanbanContainer = document.getElementById('kanban-board-container');
+            const spriteContainer = document.getElementById('sprite-status-container');
+
+            function updateStatus(isOnline) {
+                if (isOnline) {
+                    connectionStatusDiv.innerHTML = '<span class="text-green-500">Online</span>';
+                    // Trigger a re-fetch for both components on coming back online
+                    if (kanbanContainer) htmx.trigger(kanbanContainer, 'refresh');
+                    if (spriteContainer) htmx.trigger(spriteContainer, 'refresh');
+                } else {
+                    connectionStatusDiv.innerHTML = '<span class="text-red-500">Offline - Reconnecting...</span>';
+                }
+            }
+
+            // Initial check
+            updateStatus(navigator.onLine);
+
+            window.addEventListener('online', function() {
+                updateStatus(true);
+            });
+
+            window.addEventListener('offline', function() {
+                updateStatus(false);
+            });
+
+            // Add HTMX custom event listeners for 'refresh'
+            // This is useful if we want to manually trigger a refresh from JS
+            if (kanbanContainer) {
+                kanbanContainer.addEventListener('refresh', function() {
+                    htmx.trigger(kanbanContainer, 'hx:get'); // Re-trigger the hx-get
+                });
+            }
+            if (spriteContainer) {
+                spriteContainer.addEventListener('refresh', function() {
+                    htmx.trigger(spriteContainer, 'hx:get'); // Re-trigger the hx-get
+                });
+            }
+        });
+    </script>
 </body>
 </html>

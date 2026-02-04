@@ -44,7 +44,7 @@
 
 - [x] Implement Event Middleware: Every state change must append to `event_log`.
 - [x] Build the "Rewind" Logic: Functionality to reconstruct state from the ledger.
-- [ ] Implement the "Sonar Ping": UI mechanism to re-sync state on reconnect.
+- [x] Implement the "Sonar Ping": UI mechanism to re-sync state on reconnect.
 
 ---
 
