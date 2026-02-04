@@ -16,6 +16,7 @@ use std::time::Duration; // Added for heartbeat watchdog
 
 mod ledger;
 mod models;
+mod rewind;
 
 use models::{Note, CreateNote, UpdateNote, ReorderNote, WipGroup, CreateWipGroup, UpdateWipGroup, EventType, Sprite, UpdateSpriteStatus};
 
@@ -64,6 +65,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/notes/:id/reorder", put(reorder_note))
         .route("/api/wip_groups", post(create_wip_group).get(list_wip_groups))
         .route("/api/wip_groups/:id", get(get_wip_group).put(update_wip_group).delete(delete_wip_group))
+        // Admin Endpoints
+        .route("/api/admin/rewind", post(admin_rewind)) // New Admin endpoint for rewind logic
         // HTMX Endpoints
         .route("/htmx/sprites", get(get_sprite_statuses))
         .route("/htmx/sprites/:id/status", put(update_sprite_status))
@@ -290,6 +293,18 @@ async fn delete_wip_group(
         Ok(true) => StatusCode::NO_CONTENT.into_response(),
         Ok(false) => StatusCode::NOT_FOUND.into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
+    }
+}
+
+async fn admin_rewind(
+    State(pool): State<SqlitePool>,
+) -> impl IntoResponse {
+    match rewind::rewind_state(&pool).await {
+        Ok(_) => (StatusCode::OK, "Rewind successful").into_response(),
+        Err(e) => {
+            eprintln!("Error during rewind: {:?}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, format!("Rewind failed: {}", e)).into_response()
+        }
     }
 }
 
