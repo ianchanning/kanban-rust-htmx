@@ -234,14 +234,28 @@ impl Sprite {
         Ok(res)
     }
 
-    pub async fn update_heartbeat(pool: &SqlitePool, id: &str) -> Result<bool, sqlx::Error> {
-        let result = sqlx::query!(
-            "UPDATE sprites SET last_seen = CURRENT_TIMESTAMP WHERE id = ?",
+    pub async fn update_heartbeat(pool: &SqlitePool, id: &str, event_type: EventType) -> Result<Option<Sprite>, sqlx::Error> {
+        let mut tx = pool.begin().await?;
+
+        let res = sqlx::query_as!(
+            Sprite,
+            r#"
+            UPDATE sprites
+            SET last_seen = CURRENT_TIMESTAMP
+            WHERE id = ?
+            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            "#,
             id
         )
-        .execute(pool)
+        .fetch_optional(&mut *tx)
         .await?;
-        Ok(result.rows_affected() == 1)
+
+        if let Some(ref sprite) = res {
+            crate::ledger::append_event(&mut tx, &event_type, sprite).await?;
+        }
+
+        tx.commit().await?;
+        Ok(res)
     }
 
     pub async fn find_by_wip_group_id(
