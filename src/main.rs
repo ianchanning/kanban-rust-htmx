@@ -331,7 +331,39 @@ async fn admin_emergency_blow(
     State(pool): State<SqlitePool>,
 ) -> impl IntoResponse {
     match rewind::truncate_tables(&pool).await {
-        Ok(_) => (StatusCode::OK, "Emergency Blow successful: All application data cleared.").into_response(),
+        Ok(_) => {
+            info!("Emergency Blow successful: All application data cleared.");
+
+            // Optional Integration: Connect the Red Handle to lsprite.sh logic
+            if let Ok(lsprite_path) = std::env::var("LSPRITE_SH_PATH") {
+                info!("LSPRITE_SH_PATH is set. Attempting to execute {} reset-cave", lsprite_path);
+                let output = tokio::process::Command::new(lsprite_path)
+                    .arg("reset-cave") // Assuming lsprite.sh has a 'reset-cave' command
+                    .output()
+                    .await;
+
+                match output {
+                    Ok(output) => {
+                        if !output.status.success() {
+                            eprintln!("lsprite.sh reset-cave failed: {:?}", output);
+                            eprintln!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                            eprintln!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+                            return (StatusCode::INTERNAL_SERVER_ERROR, format!("Emergency Blow successful, but lsprite.sh reset-cave failed: {}", String::from_utf8_lossy(&output.stderr))).into_response();
+                        } else {
+                            info!("lsprite.sh reset-cave successful.");
+                            info!("Stdout: {}", String::from_utf8_lossy(&output.stdout));
+                            info!("Stderr: {}", String::from_utf8_lossy(&output.stderr));
+                            return (StatusCode::OK, "Emergency Blow successful: All application data cleared and lsprite.sh reset-cave executed.").into_response();
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("Failed to execute lsprite.sh reset-cave: {:?}", e);
+                        return (StatusCode::INTERNAL_SERVER_ERROR, format!("Emergency Blow successful, but failed to execute lsprite.sh reset-cave: {}", e)).into_response();
+                    }
+                }
+            }
+            (StatusCode::OK, "Emergency Blow successful: All application data cleared.").into_response()
+        },
         Err(e) => {
             eprintln!("Error during Emergency Blow: {:?}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, format!("Emergency Blow failed: {}", e)).into_response()
