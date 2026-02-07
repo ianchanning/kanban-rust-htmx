@@ -114,9 +114,9 @@ async fn get_sprite_statuses(
                     sprite.id, sprite.sigil, status_color, sprite.status
                 ));
             }
-            Html(html)
+            Html(html).into_response()
         },
-        Err(_) => Html("<div>Error loading sprites</div>".to_string()),
+        Err(_) => Html("<div>Error loading sprites</div>".to_string()).into_response(),
     }
 }
 
@@ -225,7 +225,7 @@ async fn update_note(
         Ok(Some(note)) => {
             // Check if wip_group_id changed
             if let Some(new_wip_group_id) = payload.wip_group_id {
-                if new_wip_group_id != old_wip_group_id {
+                if Some(new_wip_group_id) != old_wip_group_id {
                     tokio::spawn(async {
                         run_git_clean_room().await;
                     });
@@ -435,11 +435,11 @@ async fn get_kanban_board_html(
                 html.push_str(r#"</div>"#); // End wip-group div
             }
             html.push_str(r#"</div>"#); // End flex container
-            Html(html)
+            Html(html).into_response()
         },
         Err(e) => {
             eprintln!("Error fetching WIP groups: {:?}", e);
-            Html("<div>Error loading Kanban board</div>".to_string())
+            Html("<div>Error loading Kanban board</div>".to_string()).into_response()
         }
     }
 }
@@ -455,13 +455,13 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
         info!("Heartbeat watchdog: Checking for expired sprites...");
 
         let minutes_ago = -expiration_threshold_minutes; // Use as i32
-        let minutes_ago_str = minutes_ago.to_string(); // Bind to a variable
+        let minutes_ago_str = minutes_ago.to_string(); // Bind to a variable with a longer lifetime
         let result = sqlx::query!(
             r#"
             DELETE FROM sprites
             WHERE last_seen < datetime('now', ? || ' minutes ago')
             "#,
-            minutes_ago_str.as_str() // Pass a reference to the bound variable
+            minutes_ago_str
         )
         .execute(&pool)
         .await;

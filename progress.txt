@@ -87,4 +87,9 @@ Modified `admin_emergency_blow` to conditionally execute `lsprite.sh reset-cave`
 Identified a fundamental problem in the Implementation Plan:
 - The plan (Phase 5 and Deployment) assumes 'lsprite.sh' exists within the workspace for build and integration purposes.
 - Reality: 'lsprite.sh' is located in the home directory (/root/mothership/lsprite.sh), outside the project workspace.
-- Integration attempts with the Red Handle and Deployment steps are currently blocked by this architectural assumption.
+- Integration attempts with the Red Handle and Deployment steps are currently blocked by this architectural assumption.## Phase 6: Stabilization (Submarine-Alpha)
+- [x] Fixed SQLx type mapping for NaiveDateTime.
+- [x] Resolved HTMX response type mismatches in main.rs.
+- [x] Fixed borrow checker issue in heartbeat_watchdog.
+- [ ] Resolving persistent i64 vs Option<i64> desync in Note models.
+
