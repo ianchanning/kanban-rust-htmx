@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, SqlitePool};
+use sqlx::{FromRow, SqlitePool, Row};
 use chrono::NaiveDateTime;
 
 // Define EventType for ledger interaction
@@ -157,17 +157,16 @@ impl Sprite {
         event_type: EventType,
     ) -> Result<Sprite, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let res = sqlx::query_as!(
-            Sprite,
+        let res = sqlx::query_as::<_, Sprite>(
             r#"
             INSERT INTO sprites (id, sigil, wip_group_id)
             VALUES (?, ?, ?)
-            RETURNING id, sigil, status, wip_group_id as "wip_group_id: i64", last_seen, created_at, updated_at
-            "#,
-            new_sprite.id,
-            new_sprite.sigil,
-            new_sprite.wip_group_id
+            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            "#
         )
+        .bind(new_sprite.id)
+        .bind(new_sprite.sigil)
+        .bind(new_sprite.wip_group_id)
         .fetch_one(&mut *tx)
         .await?;
 
@@ -179,10 +178,9 @@ impl Sprite {
     }
 
     pub async fn find_all(pool: &SqlitePool) -> Result<Vec<Sprite>, sqlx::Error> {
-        sqlx::query_as!(
-            Sprite,
+        sqlx::query_as::<_, Sprite>(
             r#"
-            SELECT id, sigil, status, wip_group_id as "wip_group_id: i64", last_seen, created_at, updated_at
+            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
             FROM sprites
             "#
         )
@@ -194,15 +192,14 @@ impl Sprite {
     where
         E: sqlx::Executor<'e, Database = sqlx::Sqlite>,
     {
-        sqlx::query_as!(
-            Sprite,
+        sqlx::query_as::<_, Sprite>(
             r#"
-            SELECT id, sigil, status, wip_group_id as "wip_group_id: i64", last_seen, created_at, updated_at
+            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
             FROM sprites
             WHERE id = ?
-            "#,
-            id
+            "#
         )
+        .bind(id)
         .fetch_optional(executor)
         .await
     }
@@ -215,17 +212,16 @@ impl Sprite {
     ) -> Result<Option<Sprite>, sqlx::Error> {
         let mut tx = pool.begin().await?;
         
-        let res = sqlx::query_as!(
-            Sprite,
+        let res = sqlx::query_as::<_, Sprite>(
             r#"
             UPDATE sprites
             SET status = ?, last_seen = CURRENT_TIMESTAMP
             WHERE id = ?
-            RETURNING id, sigil, status, wip_group_id as "wip_group_id: i64", last_seen, created_at, updated_at
-            "#,
-            status,
-            id
+            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            "#
         )
+        .bind(status)
+        .bind(id)
         .fetch_optional(&mut *tx)
         .await?;
 
@@ -241,16 +237,15 @@ impl Sprite {
     pub async fn update_heartbeat(pool: &SqlitePool, id: &str, event_type: EventType) -> Result<Option<Sprite>, sqlx::Error> {
         let mut tx = pool.begin().await?;
 
-        let res = sqlx::query_as!(
-            Sprite,
+        let res = sqlx::query_as::<_, Sprite>(
             r#"
             UPDATE sprites
             SET last_seen = CURRENT_TIMESTAMP
             WHERE id = ?
-            RETURNING id, sigil, status, wip_group_id as "wip_group_id: i64", last_seen, created_at, updated_at
-            "#,
-            id
+            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            "#
         )
+        .bind(id)
         .fetch_optional(&mut *tx)
         .await?;
 
@@ -266,15 +261,14 @@ impl Sprite {
         pool: &SqlitePool,
         wip_group_id: i64,
     ) -> Result<Vec<Sprite>, sqlx::Error> {
-        sqlx::query_as!(
-            Sprite,
+        sqlx::query_as::<_, Sprite>(
             r#"
-            SELECT id, sigil, status, wip_group_id as "wip_group_id: i64", last_seen, created_at, updated_at
+            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
             FROM sprites
             WHERE wip_group_id = ?
-            "#,
-            wip_group_id
+            "#
         )
+        .bind(wip_group_id)
         .fetch_all(pool)
         .await
     }
@@ -288,18 +282,17 @@ impl Note {
         event_type: EventType,
     ) -> Result<Note, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let res = sqlx::query_as!(
-            Note,
+        let res = sqlx::query_as::<_, Note>(
             r#"
             INSERT INTO notes (title, color, wip_group_id, position)
             VALUES (?, ?, ?, (SELECT COALESCE(MAX(position), 0) + 1 FROM notes WHERE wip_group_id = ?))
-            RETURNING id, title, color, wip_group_id as "wip_group_id!", position as "position!", status, created_at, updated_at
-            "#,
-            new_note.title,
-            new_note.color,
-            new_note.wip_group_id,
-            new_note.wip_group_id
+            RETURNING id, title, color, wip_group_id, position, status, created_at, updated_at
+            "#
         )
+        .bind(new_note.title)
+        .bind(new_note.color)
+        .bind(new_note.wip_group_id)
+        .bind(new_note.wip_group_id)
         .fetch_one(&mut *tx)
         .await?;
 
@@ -311,10 +304,9 @@ impl Note {
     }
 
     pub async fn find_all(pool: &SqlitePool) -> Result<Vec<Note>, sqlx::Error> {
-        sqlx::query_as!(
-            Note,
+        sqlx::query_as::<_, Note>(
             r#"
-            SELECT id, title, color, wip_group_id as "wip_group_id!", position as "position!", status, created_at, updated_at
+            SELECT id, title, color, wip_group_id, position, status, created_at, updated_at
             FROM notes
             ORDER BY position
             "#
@@ -327,15 +319,14 @@ impl Note {
     where
         E: sqlx::Executor<'e, Database = sqlx::Sqlite>,
     {
-        sqlx::query_as!(
-            Note,
+        sqlx::query_as::<_, Note>(
             r#"
-            SELECT id, title, color, wip_group_id as "wip_group_id!", position as "position!", status, created_at, updated_at
+            SELECT id, title, color, wip_group_id, position, status, created_at, updated_at
             FROM notes
             WHERE id = ?
-            "#,
-            id
+            "#
         )
+        .bind(id)
         .fetch_optional(executor)
         .await
     }
@@ -348,8 +339,7 @@ impl Note {
     ) -> Result<Option<Note>, sqlx::Error> {
         let mut tx = pool.begin().await?;
         
-        let res = sqlx::query_as!(
-            Note,
+        let res = sqlx::query_as::<_, Note>(
             r#"
             UPDATE notes
             SET
@@ -359,15 +349,15 @@ impl Note {
                 position = COALESCE(?, position),
                 status = COALESCE(?, status)
             WHERE id = ?
-            RETURNING id, title, color, wip_group_id as "wip_group_id!", position as "position!", status, created_at, updated_at
-            "#,
-            update_note.title,
-            update_note.color,
-            update_note.wip_group_id,
-            update_note.position,
-            update_note.status,
-            id
+            RETURNING id, title, color, wip_group_id, position, status, created_at, updated_at
+            "#
         )
+        .bind(update_note.title)
+        .bind(update_note.color)
+        .bind(update_note.wip_group_id)
+        .bind(update_note.position)
+        .bind(update_note.status)
+        .bind(id)
         .fetch_optional(&mut *tx)
         .await?;
 
@@ -388,13 +378,13 @@ impl Note {
             None => return Ok(false),
         };
 
-        let result: sqlx::sqlite::SqliteQueryResult = sqlx::query!(
+        let result = sqlx::query(
             r#"
             DELETE FROM notes
             WHERE id = ?
-            "#,
-            id
+            "#
         )
+        .bind(id)
         .execute(&mut *tx)
         .await?;
 
@@ -432,48 +422,47 @@ impl Note {
         // 2. Adjust positions of other notes in the same wip_group
         if new_position < old_position {
             // Moving note up (smaller position number)
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 UPDATE notes
                 SET position = position + 1
                 WHERE wip_group_id = ? AND position >= ? AND position < ? AND id != ?
-                "#,
-                wip_group_id,
-                new_position,
-                old_position,
-                id
+                "#
             )
+            .bind(wip_group_id)
+            .bind(new_position)
+            .bind(old_position)
+            .bind(id)
             .execute(&mut *tx)
             .await?;
         } else if new_position > old_position {
             // Moving note down (larger position number)
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 UPDATE notes
                 SET position = position - 1
                 WHERE wip_group_id = ? AND position > ? AND position <= ? AND id != ?
-                "#,
-                wip_group_id,
-                old_position,
-                new_position,
-                id
+                "#
             )
+            .bind(wip_group_id)
+            .bind(old_position)
+            .bind(new_position)
+            .bind(id)
             .execute(&mut *tx)
             .await?;
         }
 
         // 3. Update the position of the target note
-        let updated_note = sqlx::query_as!(
-            Note,
+        let updated_note = sqlx::query_as::<_, Note>(
             r#"
             UPDATE notes
             SET position = ?
             WHERE id = ?
-            RETURNING id, title, color, wip_group_id as "wip_group_id!", position as "position!", status, created_at, updated_at
-            "#,
-            new_position,
-            id
+            RETURNING id, title, color, wip_group_id, position, status, created_at, updated_at
+            "#
         )
+        .bind(new_position)
+        .bind(id)
         .fetch_optional(&mut *tx)
         .await?;
 
@@ -490,16 +479,15 @@ impl Note {
         pool: &SqlitePool,
         wip_group_id: i64,
     ) -> Result<Vec<Note>, sqlx::Error> {
-        sqlx::query_as!(
-            Note,
+        sqlx::query_as::<_, Note>(
             r#"
-            SELECT id, title, color, wip_group_id as "wip_group_id!", position as "position!", status, created_at, updated_at
+            SELECT id, title, color, wip_group_id, position, status, created_at, updated_at
             FROM notes
             WHERE wip_group_id = ?
             ORDER BY position
-            "#,
-            wip_group_id
+            "#
         )
+        .bind(wip_group_id)
         .fetch_all(pool)
         .await
     }
@@ -513,16 +501,15 @@ impl WipGroup {
         event_type: EventType,
     ) -> Result<WipGroup, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let res = sqlx::query_as!(
-            WipGroup,
+        let res = sqlx::query_as::<_, WipGroup>(
             r#"
             INSERT INTO wip_groups (name, position)
             VALUES (?, ?)
             RETURNING id, name, position, created_at, updated_at
-            "#,
-            new_wip_group.name,
-            new_wip_group.position
+            "#
         )
+        .bind(new_wip_group.name)
+        .bind(new_wip_group.position)
         .fetch_one(&mut *tx)
         .await?;
 
@@ -534,8 +521,7 @@ impl WipGroup {
     }
 
     pub async fn find_all(pool: &SqlitePool) -> Result<Vec<WipGroup>, sqlx::Error> {
-        sqlx::query_as!(
-            WipGroup,
+        sqlx::query_as::<_, WipGroup>(
             r#"
             SELECT id, name, position, created_at, updated_at
             FROM wip_groups
@@ -550,15 +536,14 @@ impl WipGroup {
     where
         E: sqlx::Executor<'e, Database = sqlx::Sqlite>,
     {
-        sqlx::query_as!(
-            WipGroup,
+        sqlx::query_as::<_, WipGroup>(
             r#"
             SELECT id, name, position, created_at, updated_at
             FROM wip_groups
             WHERE id = ?
-            "#,
-            id
+            "#
         )
+        .bind(id)
         .fetch_optional(executor)
         .await
     }
@@ -571,8 +556,7 @@ impl WipGroup {
     ) -> Result<Option<WipGroup>, sqlx::Error> {
         let mut tx = pool.begin().await?;
         
-        let res = sqlx::query_as!(
-            WipGroup,
+        let res = sqlx::query_as::<_, WipGroup>(
             r#"
             UPDATE wip_groups
             SET
@@ -580,11 +564,11 @@ impl WipGroup {
                 position = COALESCE(?, position)
             WHERE id = ?
             RETURNING id, name, position, created_at, updated_at
-            "#,
-            update_wip_group.name,
-            update_wip_group.position,
-            id
+            "#
         )
+        .bind(update_wip_group.name)
+        .bind(update_wip_group.position)
+        .bind(id)
         .fetch_optional(&mut *tx)
         .await?;
 
@@ -605,13 +589,13 @@ impl WipGroup {
             None => return Ok(false),
         };
 
-        let result: sqlx::sqlite::SqliteQueryResult = sqlx::query!(
+        let result = sqlx::query(
             r#"
             DELETE FROM wip_groups
             WHERE id = ?
-            "#,
-            id
+            "#
         )
+        .bind(id)
         .execute(&mut *tx)
         .await?;
 

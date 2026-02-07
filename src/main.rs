@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/htmx/sprites/:id/status", put(update_sprite_status))
         .route("/htmx/sprites/:id", get(get_sprite_fragment))
         .route("/htmx/kanban-board", get(get_kanban_board_html)) // New HTMX route for the full board
-        .with_state(pool)
+        .with_state(pool.clone())
         .fallback_service(ServeDir::new("public"));
 
     let listener = TcpListener::bind("0.0.0.0:3000").await?;
