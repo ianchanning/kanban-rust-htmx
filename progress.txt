@@ -103,3 +103,6 @@ Identified a fundamental problem in the Implementation Plan:
 - [x] Resolved borrow checker and syntax errors in main.rs.
 - [x] Verified full workspace compilation.
 
+## Phase 7: Documentation & Handoff
+- [x] Created souls/README.md documenting Cave architecture and Mothership path.
+
