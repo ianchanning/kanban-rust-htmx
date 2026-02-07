@@ -73,9 +73,15 @@ Lifecycle management is handled via the Mothership's authority path: `/root/moth
 ```
 
 ### Running the Forge
-The backend listens on port `3000`.
+The backend listens on port `3000`. Ensure CSS is built before launch.
 
 ```bash
+# Build the Submarine Skin (Tailwind CSS)
+npm run build:css
+
+# Watch for UI changes (Optional)
+npm run watch:css &
+
 # Start the engine
 cargo run
 
