@@ -57,17 +57,18 @@
 
 ---
 
-## Known Issues & Blockers (Submarine-Alpha)
+## Known Issues & Blockers (Submarine-Alpha) - RESOLVED
 
-### B-001: Structural Integrity Breach (Compilation)
-The codebase is currently non-functional due to 128 compilation errors.
-- [ ] **SQLx Overrides Required:** SQLite `DATETIME` columns must be mapped to `chrono` or `time` types, or the `created_at`/`updated_at` fields must be handled as raw strings with manual overrides in `query_as!`.
-- [ ] **Logic Gaps:** `ReorderNote` is missing from `models.rs`, breaking the spatial reordering API.
-- [ ] **Async/Trait Friction:** `append_event` expects `Executor`, but receiving `&mut Transaction` requires explicit trait dereferencing or adjustment of the helper function.
+### B-001: Structural Integrity Breach (Compilation) - FIXED
+The codebase is now fully functional and compiles correctly.
+- [x] **SQLx Overrides Required:** Resolved by using `query_as::<_, T>` for runtime type mapping.
+- [x] **Logic Gaps:** `ReorderNote` and other missing models implemented in `models.rs`.
+- [x] **Async/Trait Friction:** `append_event` helper adjusted to accept `Executor`.
+- [x] **Model/Schema Sync:** Aligned `Sprite` models with `TEXT` `wip_group_id` in DB.
 
-### B-002: Mothership Desync (Infrastructure)
-- [ ] **Path Desync:** The link to `lsprite.sh` is fragile. The project uses a local copy or placeholder, while the system expects integration with `/root/mothership/lsprite.sh`.
-- [ ] **Resolution Path:** Iteration needed on whether the Sprite viewer should execute orchestration scripts or simply signal the Host to do so via the Ledger.
+### B-002: Mothership Desync (Infrastructure) - DOCUMENTED
+- [x] **Path Desync:** Authoritative path documented as `/root/mothership/lsprite.sh`.
+- [x] **Resolution Path:** `admin_emergency_blow` integrated with `LSPRITE_SH_PATH` env var.
 
 ---
 

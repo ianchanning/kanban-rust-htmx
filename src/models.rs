@@ -131,7 +131,7 @@ pub struct Sprite {
     pub id: String, // ULID
     pub sigil: String,
     pub status: String,
-    pub wip_group_id: Option<i64>,
+    pub wip_group_id: Option<String>,
     pub last_seen: NaiveDateTime,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -141,7 +141,7 @@ pub struct Sprite {
 pub struct CreateSprite {
     pub id: String,
     pub sigil: String,
-    pub wip_group_id: Option<i64>,
+    pub wip_group_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -261,6 +261,7 @@ impl Sprite {
         pool: &SqlitePool,
         wip_group_id: i64,
     ) -> Result<Vec<Sprite>, sqlx::Error> {
+        let wip_group_id_str = wip_group_id.to_string();
         sqlx::query_as::<_, Sprite>(
             r#"
             SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
@@ -268,7 +269,7 @@ impl Sprite {
             WHERE wip_group_id = ?
             "#
         )
-        .bind(wip_group_id)
+        .bind(wip_group_id_str)
         .fetch_all(pool)
         .await
     }
