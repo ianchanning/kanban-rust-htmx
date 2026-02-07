@@ -83,7 +83,7 @@ sqlx database create && sqlx migrate run
 npm run build:css
 
 # Watch for UI changes (Optional)
-npm run watch:css &
+npm run watch:css < /dev/null &
 
 # Start the engine
 cargo run

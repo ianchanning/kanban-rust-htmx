@@ -114,3 +114,6 @@ Identified a fundamental problem in the Implementation Plan:
 - [x] Documented recovery sequence in @specs/003-post-purge-recovery.md.
 - [x] Re-initialized database and applied migrations via sqlx.
 - [x] Verified system integrity via cargo check.
+
+## Phase 9: Documentation Updates
+- [x] Corrected 'npm run watch:css' command in README.md to prevent background process suspension.
