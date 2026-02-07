@@ -455,12 +455,13 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
         info!("Heartbeat watchdog: Checking for expired sprites...");
 
         let minutes_ago = -expiration_threshold_minutes; // Use as i32
+        let minutes_ago_str = minutes_ago.to_string(); // Bind to a variable
         let result = sqlx::query!(
             r#"
             DELETE FROM sprites
             WHERE last_seen < datetime('now', ? || ' minutes ago')
             "#,
-            minutes_ago.to_string()
+            minutes_ago_str.as_str() // Pass a reference to the bound variable
         )
         .execute(&pool)
         .await;
