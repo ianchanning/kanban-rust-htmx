@@ -61,13 +61,13 @@
 
 ### B-001: Structural Integrity Breach (Compilation)
 The codebase is currently non-functional due to 128 compilation errors.
-- **SQLx Overrides Required:** SQLite `DATETIME` columns must be mapped to `chrono` or `time` types, or the `created_at`/`updated_at` fields must be handled as raw strings with manual overrides in `query_as!`.
-- **Logic Gaps:** `ReorderNote` is missing from `models.rs`, breaking the spatial reordering API.
-- **Async/Trait Friction:** `append_event` expects `Executor`, but receiving `&mut Transaction` requires explicit trait dereferencing or adjustment of the helper function.
+- [ ] **SQLx Overrides Required:** SQLite `DATETIME` columns must be mapped to `chrono` or `time` types, or the `created_at`/`updated_at` fields must be handled as raw strings with manual overrides in `query_as!`.
+- [ ] **Logic Gaps:** `ReorderNote` is missing from `models.rs`, breaking the spatial reordering API.
+- [ ] **Async/Trait Friction:** `append_event` expects `Executor`, but receiving `&mut Transaction` requires explicit trait dereferencing or adjustment of the helper function.
 
 ### B-002: Mothership Desync (Infrastructure)
-- The link to `lsprite.sh` is fragile. The project uses a local copy or placeholder, while the system expects integration with `/root/mothership/lsprite.sh`.
-- **Resolution Path:** Iteration needed on whether the Sprite viewer should execute orchestration scripts or simply signal the Host to do so via the Ledger.
+- [ ] **Path Desync:** The link to `lsprite.sh` is fragile. The project uses a local copy or placeholder, while the system expects integration with `/root/mothership/lsprite.sh`.
+- [ ] **Resolution Path:** Iteration needed on whether the Sprite viewer should execute orchestration scripts or simply signal the Host to do so via the Ledger.
 
 ---
 
