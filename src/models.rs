@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, SqlitePool};
+use chrono::NaiveDateTime;
 
 // Define EventType for ledger interaction
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -79,9 +80,8 @@ pub struct Note {
     pub wip_group_id: i64,
     pub position: i64,
     pub status: String,
-    pub created_at: String, // ISO-8601 stored as text
-    #[sqlx(try_from = "String")]
-    pub updated_at: String, // ISO-8601 stored as text
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
@@ -89,19 +89,18 @@ pub struct WipGroup {
     pub id: i64,
     pub name: String,
     pub position: i64,
-    #[sqlx(try_from = "String")]
-    pub created_at: String,
-    pub updated_at: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateNote {
     pub title: String,
     pub color: String,
     pub wip_group_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UpdateNote {
     pub title: Option<String>,
     pub color: Option<String>,
@@ -110,13 +109,18 @@ pub struct UpdateNote {
     pub status: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ReorderNote {
+    pub new_position: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateWipGroup {
     pub name: String,
     pub position: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UpdateWipGroup {
     pub name: Option<String>,
     pub position: Option<i64>,
@@ -128,19 +132,19 @@ pub struct Sprite {
     pub sigil: String,
     pub status: String,
     pub wip_group_id: Option<i64>,
-    pub last_seen: String, // ISO-8601 stored as text
-    pub created_at: String, // ISO-8601 stored as text
-    pub updated_at: String, // ISO-8601 stored as text
+    pub last_seen: NaiveDateTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateSprite {
     pub id: String,
     pub sigil: String,
     pub wip_group_id: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UpdateSpriteStatus {
     pub status: String,
 }
@@ -158,7 +162,7 @@ impl Sprite {
             r#"
             INSERT INTO sprites (id, sigil, wip_group_id)
             VALUES (?, ?, ?)
-            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            RETURNING id, sigil, status, wip_group_id as "wip_group_id: _", last_seen, created_at, updated_at
             "#,
             new_sprite.id,
             new_sprite.sigil,
@@ -168,7 +172,7 @@ impl Sprite {
         .await?;
 
         // Append event to ledger
-        crate::ledger::append_event(&mut tx, &event_type, &res).await?;
+        crate::ledger::append_event(&mut *tx, &event_type, &res).await?;
 
         tx.commit().await?;
         Ok(res)
@@ -178,7 +182,7 @@ impl Sprite {
         sqlx::query_as!(
             Sprite,
             r#"
-            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            SELECT id, sigil, status, wip_group_id as "wip_group_id: _", last_seen, created_at, updated_at
             FROM sprites
             "#
         )
@@ -193,7 +197,7 @@ impl Sprite {
         sqlx::query_as!(
             Sprite,
             r#"
-            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            SELECT id, sigil, status, wip_group_id as "wip_group_id: _", last_seen, created_at, updated_at
             FROM sprites
             WHERE id = ?
             "#,
@@ -217,7 +221,7 @@ impl Sprite {
             UPDATE sprites
             SET status = ?, last_seen = CURRENT_TIMESTAMP
             WHERE id = ?
-            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            RETURNING id, sigil, status, wip_group_id as "wip_group_id: _", last_seen, created_at, updated_at
             "#,
             status,
             id
@@ -227,7 +231,7 @@ impl Sprite {
 
         if let Some(ref sprite) = res {
             // Append event to ledger
-            crate::ledger::append_event(&mut tx, &event_type, sprite).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, sprite).await?;
         }
 
         tx.commit().await?;
@@ -243,7 +247,7 @@ impl Sprite {
             UPDATE sprites
             SET last_seen = CURRENT_TIMESTAMP
             WHERE id = ?
-            RETURNING id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            RETURNING id, sigil, status, wip_group_id as "wip_group_id: _", last_seen, created_at, updated_at
             "#,
             id
         )
@@ -251,7 +255,7 @@ impl Sprite {
         .await?;
 
         if let Some(ref sprite) = res {
-            crate::ledger::append_event(&mut tx, &event_type, sprite).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, sprite).await?;
         }
 
         tx.commit().await?;
@@ -265,7 +269,7 @@ impl Sprite {
         sqlx::query_as!(
             Sprite,
             r#"
-            SELECT id, sigil, status, wip_group_id, last_seen, created_at, updated_at
+            SELECT id, sigil, status, wip_group_id as "wip_group_id: _", last_seen, created_at, updated_at
             FROM sprites
             WHERE wip_group_id = ?
             "#,
@@ -300,7 +304,7 @@ impl Note {
         .await?;
 
         // Append event to ledger
-        crate::ledger::append_event(&mut tx, &event_type, &res).await?;
+        crate::ledger::append_event(&mut *tx, &event_type, &res).await?;
 
         tx.commit().await?;
         Ok(res)
@@ -343,12 +347,7 @@ impl Note {
         event_type: EventType,
     ) -> Result<Option<Note>, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let current_note = Self::find_by_id(&mut tx, id).await?;
-        let current_note = match current_note {
-            Some(note) => note,
-            None => return Ok(None),
-        };
-
+        
         let res = sqlx::query_as!(
             Note,
             r#"
@@ -374,7 +373,7 @@ impl Note {
 
         if let Some(ref note) = res {
             // Append event to ledger
-            crate::ledger::append_event(&mut tx, &event_type, note).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, note).await?;
         }
 
         tx.commit().await?;
@@ -383,7 +382,7 @@ impl Note {
 
     pub async fn delete(pool: &SqlitePool, id: i64, event_type: EventType) -> Result<bool, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let deleted_note = Self::find_by_id(&mut tx, id).await?;
+        let deleted_note = Self::find_by_id(&mut *tx, id).await?;
         let deleted_note = match deleted_note {
             Some(note) => note,
             None => return Ok(false),
@@ -401,7 +400,7 @@ impl Note {
 
         if result.rows_affected() == 1 {
             // Append event to ledger
-            crate::ledger::append_event(&mut tx, &event_type, &deleted_note).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, &deleted_note).await?;
             tx.commit().await?;
             Ok(true)
         } else {
@@ -419,7 +418,7 @@ impl Note {
         let mut tx = pool.begin().await?;
 
         // 1. Get the current note to find its wip_group_id and current position
-        let current_note = Self::find_by_id(&mut tx, id).await?;
+        let current_note = Self::find_by_id(&mut *tx, id).await?;
         let current_note = match current_note {
             Some(note) => note,
             None => return Ok(None),
@@ -480,7 +479,7 @@ impl Note {
 
         if let Some(ref note) = updated_note {
             // Append event to ledger
-            crate::ledger::append_event(&mut tx, &event_type, note).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, note).await?;
         }
 
         tx.commit().await?;
@@ -528,7 +527,7 @@ impl WipGroup {
         .await?;
 
         // Append event to ledger
-        crate::ledger::append_event(&mut tx, &event_type, &res).await?;
+        crate::ledger::append_event(&mut *tx, &event_type, &res).await?;
 
         tx.commit().await?;
         Ok(res)
@@ -571,12 +570,7 @@ impl WipGroup {
         event_type: EventType,
     ) -> Result<Option<WipGroup>, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let current_wip_group = Self::find_by_id(&mut tx, id).await?;
-        let current_wip_group = match current_wip_group {
-            Some(wip_group) => wip_group,
-            None => return Ok(None),
-        };
-
+        
         let res = sqlx::query_as!(
             WipGroup,
             r#"
@@ -596,7 +590,7 @@ impl WipGroup {
 
         if let Some(ref wip_group) = res {
             // Append event to ledger
-            crate::ledger::append_event(&mut tx, &event_type, wip_group).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, wip_group).await?;
         }
 
         tx.commit().await?;
@@ -605,7 +599,7 @@ impl WipGroup {
 
     pub async fn delete(pool: &SqlitePool, id: i64, event_type: EventType) -> Result<bool, sqlx::Error> {
         let mut tx = pool.begin().await?;
-        let deleted_wip_group = Self::find_by_id(&mut tx, id).await?;
+        let deleted_wip_group = Self::find_by_id(&mut *tx, id).await?;
         let deleted_wip_group = match deleted_wip_group {
             Some(wip_group) => wip_group,
             None => return Ok(false),
@@ -623,7 +617,7 @@ impl WipGroup {
 
         if result.rows_affected() == 1 {
             // Append event to ledger
-            crate::ledger::append_event(&mut tx, &event_type, &deleted_wip_group).await?;
+            crate::ledger::append_event(&mut *tx, &event_type, &deleted_wip_group).await?;
             tx.commit().await?;
             Ok(true)
         } else {

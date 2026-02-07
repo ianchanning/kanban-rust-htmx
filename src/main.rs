@@ -142,7 +142,7 @@ async fn update_sprite_status(
                 </div>"#,
                 sprite.id, sprite.sigil, status_color, sprite.status
             );
-            Html(html)
+            Html(html).into_response()
         },
         Ok(None) => (StatusCode::NOT_FOUND, "Sprite not found").into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
@@ -170,7 +170,7 @@ async fn get_sprite_fragment(
                 </div>"#,
                 sprite.id, sprite.sigil, status_color, sprite.status
             );
-            Html(html)
+            Html(html).into_response()
         },
         Ok(None) => (StatusCode::NOT_FOUND, "Sprite not found").into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
@@ -454,12 +454,13 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
         interval.tick().await;
         info!("Heartbeat watchdog: Checking for expired sprites...");
 
+        let minutes_ago = -expiration_threshold_minutes.to_string(); // Convert to string once
         let result = sqlx::query!(
             r#"
             DELETE FROM sprites
             WHERE last_seen < datetime('now', ? || ' minutes ago')
             "#,
-            -expiration_threshold_minutes
+            minutes_ago
         )
         .execute(&pool)
         .await;
