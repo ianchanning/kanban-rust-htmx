@@ -225,7 +225,7 @@ async fn update_note(
         Ok(Some(note)) => {
             // Check if wip_group_id changed
             if let Some(new_wip_group_id) = payload.wip_group_id {
-                if Some(new_wip_group_id) != old_wip_group_id {
+                if new_wip_group_id != old_wip_group_id {
                     tokio::spawn(async {
                         run_git_clean_room().await;
                     });

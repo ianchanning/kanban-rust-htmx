@@ -93,3 +93,8 @@ Identified a fundamental problem in the Implementation Plan:
 - [x] Fixed borrow checker issue in heartbeat_watchdog.
 - [ ] Resolving persistent i64 vs Option<i64> desync in Note models.
 
+## Phase 6: Stabilization (Submarine-Alpha) - Part 2
+- [x] Fixed syntax errors in main.rs (watchdog).
+- [x] Aligned wip_group_id comparisons in main.rs.
+- [ ] Blocked on persistent SQLx type inference issue for Note model fields (wip_group_id, position).
+
