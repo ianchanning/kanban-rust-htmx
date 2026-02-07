@@ -109,3 +109,8 @@ Identified a fundamental problem in the Implementation Plan:
 - Rewind and Emergency Blow functional.
 - Compilation successful with 0 errors.
 
+## Phase 8: Post-Purge Recovery (Phoenix Protocol)
+- [x] Identified root cause of cargo run failure (lost kanban.db).
+- [x] Documented recovery sequence in @specs/003-post-purge-recovery.md.
+- [x] Re-initialized database and applied migrations via sqlx.
+- [x] Verified system integrity via cargo check.
