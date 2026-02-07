@@ -293,7 +293,7 @@ impl Note {
             r#"
             INSERT INTO notes (title, color, wip_group_id, position)
             VALUES (?, ?, ?, (SELECT COALESCE(MAX(position), 0) + 1 FROM notes WHERE wip_group_id = ?))
-            RETURNING id, title, color, wip_group_id as "wip_group_id: i64", position as "position: i64", status, created_at, updated_at
+            RETURNING id, title, color, wip_group_id as "wip_group_id!: i64", position as "position!: i64", status, created_at, updated_at
             "#,
             new_note.title,
             new_note.color,
@@ -314,7 +314,7 @@ impl Note {
         sqlx::query_as!(
             Note,
             r#"
-            SELECT id, title, color, wip_group_id as "wip_group_id: i64", position as "position: i64", status, created_at, updated_at
+            SELECT id, title, color, wip_group_id as "wip_group_id!: i64", position as "position!: i64", status, created_at, updated_at
             FROM notes
             ORDER BY position
             "#
@@ -330,7 +330,7 @@ impl Note {
         sqlx::query_as!(
             Note,
             r#"
-            SELECT id, title, color, wip_group_id as "wip_group_id: i64", position as "position: i64", status, created_at, updated_at
+            SELECT id, title, color, wip_group_id as "wip_group_id!: i64", position as "position!: i64", status, created_at, updated_at
             FROM notes
             WHERE id = ?
             "#,
@@ -359,7 +359,7 @@ impl Note {
                 position = COALESCE(?, position),
                 status = COALESCE(?, status)
             WHERE id = ?
-            RETURNING id, title, color, wip_group_id as "wip_group_id: i64", position as "position: i64", status, created_at, updated_at
+            RETURNING id, title, color, wip_group_id as "wip_group_id!: i64", position as "position!: i64", status, created_at, updated_at
             "#,
             update_note.title,
             update_note.color,
@@ -469,7 +469,7 @@ impl Note {
             UPDATE notes
             SET position = ?
             WHERE id = ?
-            RETURNING id, title, color, wip_group_id as "wip_group_id: i64", position as "position: i64", status, created_at, updated_at
+            RETURNING id, title, color, wip_group_id as "wip_group_id!: i64", position as "position!: i64", status, created_at, updated_at
             "#,
             new_position,
             id
@@ -493,7 +493,7 @@ impl Note {
         sqlx::query_as!(
             Note,
             r#"
-            SELECT id, title, color, wip_group_id as "wip_group_id: i64", position as "position: i64", status, created_at, updated_at
+            SELECT id, title, color, wip_group_id as "wip_group_id!: i64", position as "position!: i64", status, created_at, updated_at
             FROM notes
             WHERE wip_group_id = ?
             ORDER BY position
