@@ -117,4 +117,7 @@ Identified a fundamental problem in the Implementation Plan:
 - [x] Verified system integrity via cargo check.
 
 ## Phase 9: Documentation Updates
+
 - [x] Corrected 'npm run watch:css' command in README.md to prevent background process suspension.
+
+- [x] Conducted 'Obsidian Audit' of @specs/004-active-control.md; remediated architectural and security flaws.
