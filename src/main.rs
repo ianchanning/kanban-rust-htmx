@@ -1,6 +1,6 @@
 use axum::{
     routing::{get, post, put, delete},
-    extract::{State, Path, Json},
+    extract::{State, Path, Json, Form},
     response::{IntoResponse},
     http::StatusCode,
     Router,
@@ -100,7 +100,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 // Note Handlers
 async fn create_note(
     State(pool): State<SqlitePool>,
-    Json(mut payload): Json<CreateNote>,
+    Form(mut payload): Form<CreateNote>,
 ) -> impl IntoResponse {
     if payload.color.is_empty() {
         payload.color = "#FFFFFF".to_string();
@@ -187,7 +187,7 @@ async fn reorder_note(
 // WipGroup Handlers
 async fn create_wip_group(
     State(pool): State<SqlitePool>,
-    Json(payload): Json<CreateWipGroup>,
+    Form(payload): Form<CreateWipGroup>,
 ) -> impl IntoResponse {
     match WipGroup::create(&pool, payload, EventType::WipGroupCreated).await {
         Ok(wip_group) => (StatusCode::CREATED, templates::render_wip_group_card(&wip_group)).into_response(),
