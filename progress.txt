@@ -1,2 +1,2 @@
-
 ## Commit: panther-alpha - Added "Add Column" form to public/index.html.
+## Commit: panther-alpha - Implemented "Add Note" form and "Delete Note" button in templates.rs.

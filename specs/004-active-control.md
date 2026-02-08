@@ -6,14 +6,14 @@
 ## 1. Requirement: Active Note Management
 The current Kanban board is read-only. We must enable the creation and destruction of notes directly from the UI.
 
-- **Add Note Form:** Each column (WIP Group) rendered by the backend must include a minimalist "Add Note" form at the bottom.
+- [x] **Add Note Form:** Each column (WIP Group) rendered by the backend must include a minimalist "Add Note" form at the bottom.
   - **Inputs:** A simple text input for the note content (Title).
   - **Backend Logic:**
     - **Color:** Assign a default color (e.g., `#FFFFFF` or a deterministic pastel based on ID) if not provided.
     - **Sanitization:** All user input must be HTML-escaped before rendering to prevent XSS.
   - **Action:** POST /api/notes via HTMX.
   - **Target:** The kanban-board-container should refresh or the note should be appended.
-- **Delete Note Button:** Each note card must have a small "X" or "Delete" button.
+- [x] **Delete Note Button:** Each note card must have a small "X" or "Delete" button.
   - **Action:** DELETE /api/notes/{id} via HTMX.
   - **Confirmation:** Use hx-confirm to prevent accidental deletions.
 
@@ -40,6 +40,7 @@ We need the ability to add new stages to the board.
   - [x] `create_wip_group`: Handle automatic position calculation (if not already handled in `models.rs`).
   - [x] Ensure `POST` and `DELETE` handlers return appropriate HTMX fragments or triggers.
 - [x] **Frontend Update:** Update `public/index.html` if global styles/scripts are needed for the new interactive elements.
+- [x] **Frontend Update: Implement Add Note Form and Delete Note Button in templates.rs.**
 - [ ] **Verification:**
   - [ ] Run the server and manually test Note creation/deletion and Column creation.
   - [ ] **Security Test:** Attempt to inject `<script>alert('XSS')</script>` as a note title. Verify it renders as text, not code.

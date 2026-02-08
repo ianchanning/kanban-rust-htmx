@@ -3,7 +3,7 @@ use axum::extract::{State, Path};
 use sqlx::SqlitePool;
 use crate::models::{Note, WipGroup, Sprite, UpdateSpriteStatus, EventType};
 use axum::http::StatusCode;
-use tracing::eprintln; // Import eprintln
+
 
 // A simple HTML escaping function. For production, consider a dedicated crate like `html_escape`.
 fn html_escape(s: &str) -> String {
@@ -17,11 +17,14 @@ fn html_escape(s: &str) -> String {
 pub fn render_note_card(note: &Note) -> Html<String> {
     Html(format!(
         r#"
-        <div id="note-{}" class="bg-gray-700 p-3 rounded-md mb-2 border border-gray-600" style="background-color: {};">
+        <div id="note-{}" class="bg-gray-700 p-3 rounded-md mb-2 border border-gray-600 flex justify-between items-center" style="background-color: {};">
             <p class="text-gray-200">{}</p>
+            <button hx-delete="/api/notes/{}" hx-confirm="Are you sure you want to delete this note?" hx-swap="outerHTML swap:.2s" hx-target="#note-{}" class="text-red-400 hover:text-red-600 text-lg font-bold">
+                &times;
+            </button>
         </div>
         "#,
-        note.id, note.color, html_escape(&note.title)
+        note.id, note.color, html_escape(&note.title), note.id, note.id
     ))
 }
 
@@ -51,8 +54,9 @@ pub async fn get_kanban_board_html(
                     r#"
                     <div id="wip-group-{}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
                         <h2 class="text-2xl font-semibold mb-4 text-white">{}</h2>
+                        <div id="notes-for-wip-group-{}">
                     "#,
-                    wip_group.id, html_escape(&wip_group.name) // Escape WIP group name
+                    wip_group.id, html_escape(&wip_group.name), wip_group.id
                 ));
 
                 // Add sprites for this WIP group
@@ -88,18 +92,33 @@ pub async fn get_kanban_board_html(
                 match Note::find_by_wip_group_id(&pool, wip_group.id).await {
                     Ok(notes) => {
                         for note in notes {
-                            html.push_str(&format!(
-                                r#"
-                                <div class="bg-gray-700 p-3 rounded-md mb-2 border border-gray-600">
-                                    <p class="text-gray-200">{}</p>
-                                </div>
-                                "#,
-                                html_escape(&note.title) // Escape note title
-                            ));
+                            html.push_str(&render_note_card(&note).0);
                         }
                     },
                     Err(e) => eprintln!("Error fetching notes for WIP group {}: {:?}", wip_group.id, e),
                 }
+                html.push_str(r#"</div>"#); // End notes-for-wip-group div
+                
+                // Add Note Form
+                html.push_str(&format!(
+                    r#"
+                    <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-2 text-white">Add New Note</h3>
+                        <form hx-post="/api/notes" hx-target="#notes-for-wip-group-{}" hx-swap="beforeend" hx-on::after-request="this.reset()">
+                            <input type="hidden" name="wip_group_id" value="{}">
+                            <input type="text" name="title" placeholder="Note Title" 
+                                   class="w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400" required>
+                            <input type="text" name="color" placeholder="Color (e.g., #RRGGBB)" 
+                                   class="w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-400">
+                            <button type="submit" 
+                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Add Note
+                            </button>
+                        </form>
+                    </div>
+                    "#,
+                    wip_group.id, wip_group.id
+                ));
                 html.push_str(r#"</div>"#); // End wip-group div
             }
             html.push_str(r#"</div>"#); // End flex container
