@@ -1,1 +1,2 @@
-## Commit: panther-alpha - Implemented automatic position calculation for new WIP groups.
+
+## Commit: panther-alpha - Modified `create_note` handler to return HTMX fragment.

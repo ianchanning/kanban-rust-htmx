@@ -14,6 +14,17 @@ fn html_escape(s: &str) -> String {
      .replace('\'', "&#x27;")
 }
 
+pub fn render_note_card(note: &Note) -> Html<String> {
+    Html(format!(
+        r#"
+        <div id="note-{}" class="bg-gray-700 p-3 rounded-md mb-2 border border-gray-600" style="background-color: {};">
+            <p class="text-gray-200">{}</p>
+        </div>
+        "#,
+        note.id, note.color, html_escape(&note.title)
+    ))
+}
+
 pub async fn get_kanban_board_html(
     State(pool): State<SqlitePool>,
 ) -> impl IntoResponse {

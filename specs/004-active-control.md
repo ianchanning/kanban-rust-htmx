@@ -38,7 +38,7 @@ We need the ability to add new stages to the board.
 - [ ] **Backend Logic:** Update `src/main.rs` handlers.
   - [x] `create_note`: Handle default color assignment.
   - [x] `create_wip_group`: Handle automatic position calculation (if not already handled in `models.rs`).
-  - [ ] Ensure `POST` and `DELETE` handlers return appropriate HTMX fragments or triggers.
+  - [x] Ensure `POST` and `DELETE` handlers return appropriate HTMX fragments or triggers.
 - [ ] **Frontend Update:** Update `public/index.html` if global styles/scripts are needed for the new interactive elements.
 - [ ] **Verification:**
   - [ ] Run the server and manually test Note creation/deletion and Column creation.
