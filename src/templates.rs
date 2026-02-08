@@ -32,16 +32,35 @@ pub fn render_note_card(note: &Note) -> Html<String> {
 }
 
 pub fn render_wip_group_card(wip_group: &WipGroup) -> Html<String> {
+    let input_class = "w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400";
+    let button_class = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded";
+    let hx_target_notes_for_wip_group = format!("#notes-for-wip-group-{}", wip_group.id);
+
     Html(format!(
         r#"
-        <div id="wip-group-{}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
-            <h2 class="text-2xl font-semibold mb-4 text-white">{}</h2>
+        <div id="wip-group-{0}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+            <h2 class="text-2xl font-semibold mb-4 text-white">{1}</h2>
             <!-- Placeholder for notes and sprites, these will be loaded dynamically or via OOB updates -->
-            <div id="notes-for-wip-group-{}"></div>
-            <div id="sprites-for-wip-group-{}"></div>
+            <div id="sprites-for-wip-group-{2}"></div>
+            <div id="notes-for-wip-group-{2}"></div>
+            
+            <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2 text-white">Add New Note</h3>
+                <form hx-post="/api/notes" hx-target="{3}" hx-swap="beforeend" hx-on::after-request="this.reset()">
+                    <input type="hidden" name="wip_group_id" value="{0}">
+                    <input type="text" name="title" placeholder="Note Title"
+                           class="{4}" required>
+                    <input type="text" name="color" placeholder="Color (e.g., #RRGGBB)"
+                           class="{4}">
+                    <button type="submit"
+                            class="{5}">
+                        Add Note
+                    </button>
+                </form>
+            </div>
         </div>
         "#,
-        wip_group.id, html_escape(&wip_group.name), wip_group.id, wip_group.id
+        wip_group.id, html_escape(&wip_group.name), wip_group.id, hx_target_notes_for_wip_group, input_class, button_class
     ))
 }
 
@@ -57,7 +76,7 @@ pub async fn get_kanban_board_html(
                     r#"
                     <div id="wip-group-{0}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
                         <h2 class="text-2xl font-semibold mb-4 text-white">{1}</h2>
-                        <div id="notes-for-wip-group-{0}">
+                        <div id="sprites-for-wip-group-{0}" class="mb-4 flex flex-wrap gap-2">
                     "#,
                     wip_group.id, html_escape(&wip_group.name)
                 ));
@@ -65,33 +84,30 @@ pub async fn get_kanban_board_html(
                 // Add sprites for this WIP group
                 match Sprite::find_by_wip_group_id(&pool, wip_group.id).await {
                     Ok(sprites) => {
-                        if !sprites.is_empty() {
-                            html.push_str(r#"<div class="mb-4 flex flex-wrap gap-2">"#);
-                            for sprite in sprites {
-                                let status_color = match sprite.status.as_str() {
-                                    "Idle" => "bg-gray-500",
-                                    "Busy" => "bg-yellow-500",
-                                    "Done" => "bg-green-500",
-                                    "Failed" => "bg-red-500",
-                                    _ => "bg-gray-600",
-                                };
-                                html.push_str(&format!(
-                                    r#"
-                                    <div class="flex items-center space-x-1 text-sm bg-gray-700 p-1 rounded-full pr-2">
-                                        <span class="font-mono text-lg">{0}</span>
-                                        <span class="{1} w-2 h-2 rounded-full"></span>
-                                    </div>
-                                    "#,
-                                    html_escape(&sprite.sigil), status_color
-                                ));
-                            }
-                            html.push_str(r#"</div>"#);
+                        for sprite in sprites {
+                            let status_color = match sprite.status.as_str() {
+                                "Idle" => "bg-gray-500",
+                                "Busy" => "bg-yellow-500",
+                                "Done" => "bg-green-500",
+                                "Failed" => "bg-red-500",
+                                _ => "bg-gray-600",
+                            };
+                            html.push_str(&format!(
+                                r#"
+                                <div class="flex items-center space-x-1 text-sm bg-gray-700 p-1 rounded-full pr-2">
+                                    <span class="font-mono text-lg">{0}</span>
+                                    <span class="{1} w-2 h-2 rounded-full"></span>
+                                </div>
+                                "#,
+                                html_escape(&sprite.sigil), status_color
+                            ));
                         }
                     },
                     Err(e) => eprintln!("Error fetching sprites for WIP group {}: {:?}", wip_group.id, e),
                 }
 
-                // Add notes for this WIP group
+                html.push_str(r#"</div>"#); // End sprites-for-wip-group div
+                html.push_str(&format!(r#"<div id="notes-for-wip-group-{0}">"#, wip_group.id));
                 match Note::find_by_wip_group_id(&pool, wip_group.id).await {
                     Ok(notes) => {
                         for note in notes {

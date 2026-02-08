@@ -2,3 +2,4 @@
 ## Commit: panther-alpha - Implemented "Add Note" form and "Delete Note" button in templates.rs.
 ## Commit: panther-alpha - Refined `hx-target` logic for note deletion, fixed unused variable warnings in `src/templates.rs`, and updated `public/output.css`. Added SQLite WAL files to `.gitignore`.
 ## Commit: panther-alpha - Implemented "Add Column" feature, including UI and backend logic for position calculation and sanitization.## Commit: lynx-alpha - Resolved 415 error by switching to Form extractor for HTMX submissions in WIP group and note creation.
+## Commit: stable-deck - Resolved UI refresh bug by removing auto-polling, added manual 'Sonar Ping' refresh button, and fixed missing 'Add Note' form in new columns.
