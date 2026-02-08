@@ -154,7 +154,7 @@ async fn update_note(
                     });
                 }
             }
-            (StatusCode::OK, Json(note)).into_response()
+            (StatusCode::OK, templates::render_note_card(&note)).into_response()
         },
         Ok(None) => StatusCode::NOT_FOUND.into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
@@ -190,7 +190,7 @@ async fn create_wip_group(
     Json(payload): Json<CreateWipGroup>,
 ) -> impl IntoResponse {
     match WipGroup::create(&pool, payload, EventType::WipGroupCreated).await {
-        Ok(wip_group) => (StatusCode::CREATED, Json(wip_group)).into_response(),
+        Ok(wip_group) => (StatusCode::CREATED, templates::render_wip_group_card(&wip_group)).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }
 }
@@ -221,7 +221,7 @@ async fn update_wip_group(
     Json(payload): Json<UpdateWipGroup>,
 ) -> impl IntoResponse {
     match WipGroup::update(&pool, id, payload, EventType::WipGroupUpdated).await {
-        Ok(Some(wip_group)) => (StatusCode::OK, Json(wip_group)).into_response(),
+        Ok(Some(wip_group)) => (StatusCode::OK, templates::render_wip_group_card(&wip_group)).into_response(),
         Ok(None) => StatusCode::NOT_FOUND.into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
     }

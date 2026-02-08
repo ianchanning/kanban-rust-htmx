@@ -1,2 +1,1 @@
-
-## Commit: panther-alpha - Modified `create_note` handler to return HTMX fragment.
+## Commit: panther-alpha - Ensured all POST/PUT/DELETE handlers return appropriate HTMX responses.

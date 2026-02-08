@@ -35,7 +35,7 @@ We need the ability to add new stages to the board.
 - [x] **Architecture Refactor:** Create `src/templates.rs` (or `src/views.rs`). Move all HTML generation logic out of `src/main.rs`.
   - [x] Implement a `render_kanban_board` function in the new module.
   - [x] Implement robust HTML escaping for all dynamic strings (Note titles, WIP Group names).
-- [ ] **Backend Logic:** Update `src/main.rs` handlers.
+- [x] **Backend Logic:** Update `src/main.rs` handlers.
   - [x] `create_note`: Handle default color assignment.
   - [x] `create_wip_group`: Handle automatic position calculation (if not already handled in `models.rs`).
   - [x] Ensure `POST` and `DELETE` handlers return appropriate HTMX fragments or triggers.

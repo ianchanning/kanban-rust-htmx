@@ -25,6 +25,20 @@ pub fn render_note_card(note: &Note) -> Html<String> {
     ))
 }
 
+pub fn render_wip_group_card(wip_group: &WipGroup) -> Html<String> {
+    Html(format!(
+        r#"
+        <div id="wip-group-{}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+            <h2 class="text-2xl font-semibold mb-4 text-white">{}</h2>
+            <!-- Placeholder for notes and sprites, these will be loaded dynamically or via OOB updates -->
+            <div id="notes-for-wip-group-{}"></div>
+            <div id="sprites-for-wip-group-{}"></div>
+        </div>
+        "#,
+        wip_group.id, html_escape(&wip_group.name), wip_group.id, wip_group.id
+    ))
+}
+
 pub async fn get_kanban_board_html(
     State(pool): State<SqlitePool>,
 ) -> impl IntoResponse {
