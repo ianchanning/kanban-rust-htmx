@@ -100,8 +100,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 // Note Handlers
 async fn create_note(
     State(pool): State<SqlitePool>,
-    Json(payload): Json<CreateNote>,
+    Json(mut payload): Json<CreateNote>,
 ) -> impl IntoResponse {
+    if payload.color.is_empty() {
+        // Assign a default color if not provided
+        // For now, a simple white. This could be made more sophisticated (e.g., deterministic pastel).
+        payload.color = "#FFFFFF".to_string();
+    }
     match Note::create(&pool, payload, EventType::NoteCreated).await {
         Ok(note) => (StatusCode::CREATED, Json(note)).into_response(),
         Err(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()).into_response(),
