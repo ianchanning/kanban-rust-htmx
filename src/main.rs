@@ -61,17 +61,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/api/notes", post(create_note).get(list_notes))
-        .route("/api/notes/:id", get(get_note).put(update_note).delete(delete_note))
-        .route("/api/notes/:id/reorder", put(reorder_note))
+        .route("/api/notes/{id}", get(get_note).put(update_note).delete(delete_note))
+        .route("/api/notes/{id}/reorder", put(reorder_note))
         .route("/api/wip_groups", post(create_wip_group).get(list_wip_groups))
-        .route("/api/wip_groups/:id", get(get_wip_group).put(update_wip_group).delete(delete_wip_group))
+        .route("/api/wip_groups/{id}", get(get_wip_group).put(update_wip_group).delete(delete_wip_group))
         // Admin Endpoints
         .route("/api/admin/rewind", post(admin_rewind)) // New Admin endpoint for rewind logic
         .route("/api/admin/emergency-blow", post(admin_emergency_blow)) // New Admin endpoint for emergency blow
         // HTMX Endpoints
         .route("/htmx/sprites", get(get_sprite_statuses))
-        .route("/htmx/sprites/:id/status", put(update_sprite_status))
-        .route("/htmx/sprites/:id", get(get_sprite_fragment))
+        .route("/htmx/sprites/{id}/status", put(update_sprite_status))
+        .route("/htmx/sprites/{id}", get(get_sprite_fragment))
         .route("/htmx/kanban-board", get(get_kanban_board_html)) // New HTMX route for the full board
         .with_state(pool.clone())
         .fallback_service(ServeDir::new("public"));

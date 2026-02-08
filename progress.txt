@@ -97,6 +97,7 @@ Identified a fundamental problem in the Implementation Plan:
 - [x] Fixed all SQLx type inference and mapping issues by switching to runtime query_as.
 - [x] Resolved borrow checker and syntax errors in main.rs.
 - [x] Resolved i64 vs Option<String> desync for Sprite models.
+- [x] Fixed Axum routing issue: Path segments now use curly braces `{}` instead of colons `:`.
 - [x] Verified full workspace compilation.
 
 ## Phase 7: Documentation & Handoff
