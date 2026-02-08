@@ -32,9 +32,9 @@ We need the ability to add new stages to the board.
 - **HTMX Polish:** Use hx-swap and hx-target effectively to ensure the board feels responsive without full page reloads.
 
 ## 4. Implementation Checklist
-- [ ] **Architecture Refactor:** Create `src/templates.rs` (or `src/views.rs`). Move all HTML generation logic out of `src/main.rs`.
-  - [ ] Implement a `render_kanban_board` function in the new module.
-  - [ ] Implement robust HTML escaping for all dynamic strings (Note titles, WIP Group names).
+- [x] **Architecture Refactor:** Create `src/templates.rs` (or `src/views.rs`). Move all HTML generation logic out of `src/main.rs`.
+  - [x] Implement a `render_kanban_board` function in the new module.
+  - [x] Implement robust HTML escaping for all dynamic strings (Note titles, WIP Group names).
 - [ ] **Backend Logic:** Update `src/main.rs` handlers.
   - [ ] `create_note`: Handle default color assignment.
   - [ ] `create_wip_group`: Handle automatic position calculation (if not already handled in `models.rs`).
