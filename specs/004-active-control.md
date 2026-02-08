@@ -20,7 +20,7 @@ The current Kanban board is read-only. We must enable the creation and destructi
 ## 2. Requirement: Column (WIP Group) Management
 We need the ability to add new stages to the board.
 
-- **Add Column UI:** A form in the sidebar or at the end of the Kanban board to create a new WIP Group.
+- [x] **Add Column UI:** A form in the sidebar or at the end of the Kanban board to create a new WIP Group.
   - **Inputs:** Name of the group.
   - **Backend Logic:**
     - **Position:** The backend must calculate `MAX(position) + 1` to append the new group to the end.
