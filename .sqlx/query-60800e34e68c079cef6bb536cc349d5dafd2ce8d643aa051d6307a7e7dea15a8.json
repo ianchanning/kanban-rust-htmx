@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM sprites",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "60800e34e68c079cef6bb536cc349d5dafd2ce8d643aa051d6307a7e7dea15a8"
+}

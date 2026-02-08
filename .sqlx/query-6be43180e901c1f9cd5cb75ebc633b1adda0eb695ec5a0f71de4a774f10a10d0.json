@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM notes",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "6be43180e901c1f9cd5cb75ebc633b1adda0eb695ec5a0f71de4a774f10a10d0"
+}

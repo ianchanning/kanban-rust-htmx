@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    UPDATE notes\n                    SET title = ?, color = ?, wip_group_id = ?, position = ?, status = ?, updated_at = ?\n                    WHERE id = ?\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "ac84b2d13a34cc53bf8f6c19052460589f52917da92fa285bbd579ce4852d54e"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    INSERT INTO sprites (id, sigil, status, wip_group_id, last_seen, created_at, updated_at)\n                    VALUES (?, ?, ?, ?, ?, ?, ?)\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "d2f754eab67f80eae5e9a646d1eb01e67126c5233f0e0649b7d5f03d29e15484"
+}

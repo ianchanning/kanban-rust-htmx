@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    INSERT INTO wip_groups (id, name, position, created_at, updated_at)\n                    VALUES (?, ?, ?, ?, ?)\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "5f980dd9cffa249f537affd340d9c7d6d55b3d1bde7a402d3b0ea09d6e7a9a86"
+}

@@ -75,7 +75,7 @@ The codebase is now fully functional and compiles correctly.
 ## Deployment & Verification
 
 - [x] Build via `lsprite.sh build`
-- [ ] SQLx query verification in CI
+- [x] SQLx query verification in CI
 - [ ] Simulated Sprite death (Depth-Crush test)
 - [ ] Browser reload + network interruption tests
 

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    UPDATE wip_groups\n                    SET name = ?, position = ?, updated_at = ?\n                    WHERE id = ?\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "5ff901e58f8d9f848e3b75b017fbe32e66c744a1440092044e620c1f9557b38e"
+}

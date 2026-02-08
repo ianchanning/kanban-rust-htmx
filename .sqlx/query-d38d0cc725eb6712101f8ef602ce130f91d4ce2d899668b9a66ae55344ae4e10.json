@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n                    UPDATE sprites\n                    SET sigil = ?, status = ?, wip_group_id = ?, last_seen = ?, updated_at = ?\n                    WHERE id = ?\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "d38d0cc725eb6712101f8ef602ce130f91d4ce2d899668b9a66ae55344ae4e10"
+}

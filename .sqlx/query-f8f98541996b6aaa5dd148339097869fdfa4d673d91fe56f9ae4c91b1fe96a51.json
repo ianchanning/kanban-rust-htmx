@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM wip_groups",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": []
+  },
+  "hash": "f8f98541996b6aaa5dd148339097869fdfa4d673d91fe56f9ae4c91b1fe96a51"
+}
