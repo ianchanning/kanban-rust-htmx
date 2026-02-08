@@ -117,7 +117,6 @@ pub struct ReorderNote {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateWipGroup {
     pub name: String,
-    pub position: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -505,12 +504,11 @@ impl WipGroup {
         let res = sqlx::query_as::<_, WipGroup>(
             r#"
             INSERT INTO wip_groups (name, position)
-            VALUES (?, ?)
+            VALUES (?, (SELECT COALESCE(MAX(position), 0) + 1 FROM wip_groups))
             RETURNING id, name, position, created_at, updated_at
             "#
         )
         .bind(new_wip_group.name)
-        .bind(new_wip_group.position)
         .fetch_one(&mut *tx)
         .await?;
 
