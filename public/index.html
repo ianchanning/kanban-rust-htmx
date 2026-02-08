@@ -29,6 +29,18 @@
             <!-- Sidebar for Sprites -->
             <div class="col-span-2 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
                 <h2 class="text-xl font-semibold mb-4 text-teal-400">Sprite Monitor</h2>
+                <!-- Add Column Form -->
+                <div class="mb-6 p-3 bg-gray-700 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-2 text-white">Add New Column</h3>
+                    <form hx-post="/api/wip_groups" hx-target="#kanban-board-container" hx-swap="beforeend" hx-on::after-request="this.reset()">
+                        <input type="text" name="name" placeholder="Column Name" 
+                               class="w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400" required>
+                        <button type="submit" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Add Column
+                        </button>
+                    </form>
+                </div>
                 <!-- Red Handle Trigger -->
                 <button hx-post="/api/admin/rewind"
                         hx-confirm="Are you sure you want to trigger the Emergency Blow (rewind state)? This will reset all Kanban data."

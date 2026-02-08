@@ -1,1 +1,2 @@
-## Commit: panther-alpha - Ensured all POST/PUT/DELETE handlers return appropriate HTMX responses.
+
+## Commit: panther-alpha - Added "Add Column" form to public/index.html.
