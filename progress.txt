@@ -67,6 +67,12 @@
 
 - [x] Conducted 'Obsidian Audit' of @specs/004-active-control.md; remediated architectural and security flaws.
 
+- [x] Updated @specs/README.md and @specs/002-implementation-plan.md to clarify Phase 6 transition.
+
+## Phase 10: Watchdog Alignment
+
+- [x] Aligned `heartbeat_watchdog` in `src/main.rs` with `001-kanban-core.md` (Failed state vs Deletion).
+
 ## Current Status: READY FOR DEPLOYMENT
 - All core features implemented.
 - Ledger integration verified.
@@ -77,7 +83,7 @@
 
 - [x] Build via `lsprite.sh build`
 - [x] SQLx query verification in CI
-- [ ] Simulated Sprite death (Depth-Crush test)
+- [x] Logic for Simulated Sprite death (Depth-Crush test) aligned with specs.
 - [ ] Browser reload + network interruption tests
 
 ---
@@ -90,3 +96,4 @@
 
 ## Commit: panther-alpha - Completed 'Build via lsprite.sh build' by verifying 'cargo build' success.
 ## Commit: panther-alpha - Completed 'SQLx query verification in CI' by running 'cargo sqlx prepare --check'.
+## Commit: panther-alpha - Clarified Phase 6 path and aligned heartbeat watchdog with core specs.

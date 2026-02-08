@@ -458,8 +458,9 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
         let minutes_ago_str = minutes_ago.to_string(); // Bind to a variable with a longer lifetime
         let result = sqlx::query!(
             r#"
-            DELETE FROM sprites
-            WHERE last_seen < datetime('now', ? || ' minutes ago')
+            UPDATE sprites
+            SET status = 'Failed'
+            WHERE last_seen < datetime('now', ? || ' minutes ago') AND status != 'Failed'
             "#,
             minutes_ago_str
         )
@@ -470,13 +471,13 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
             Ok(query_result) => {
                 let rows_affected = query_result.rows_affected();
                 if rows_affected > 0 {
-                    info!("Heartbeat watchdog: Removed {} expired sprites.", rows_affected);
+                    info!("Heartbeat watchdog: Marked {} expired sprites as Failed.", rows_affected);
                 } else {
                     info!("Heartbeat watchdog: No expired sprites found.");
                 }
             }
             Err(e) => {
-                eprintln!("Heartbeat watchdog: Error deleting expired sprites: {:?}", e);
+                eprintln!("Heartbeat watchdog: Error updating expired sprites: {:?}", e);
             }
         }
     }

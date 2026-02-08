@@ -62,6 +62,8 @@ The **Octopus of Chaos** is a minimalist agent-fleet architecture. The **Host (O
 | :--------------------------- | :----------------- | :-------------------------------------------------- | :---------------------------------------- |
 | `001-kanban-core.md`         | Core Specification | First principles of Notes, WIP Groups, and Sprites. | Atomic Unit, Entropy_Signature, Heartbeat |
 | `002-implementation-plan.md` | Strike Plan        | Phased execution strategy for the Rust/HTMX build.  | Hull, Deck, Pulse, Ledger, Red Handle     |
+| `003-post-purge-recovery.md` | Recovery Protocol  | Disaster recovery sequence for lost local DB state. | Phoenix Protocol, migrations, sqlx check  |
+| `004-active-control.md`      | Active Command     | Interactive UI for Note and Column management.      | Phase 6, Captain's Bridge, templates.rs   |
 
 ---
 

@@ -81,6 +81,11 @@ The codebase is now fully functional and compiles correctly.
 
 ---
 
+## Next Phase
+- **[004-active-control.md](004-active-control.md)**: Transition to Phase 6 (The Captain's Bridge).
+
+---
+
 ## Constraints
 
 - HTMX must never perform primary state transitions
