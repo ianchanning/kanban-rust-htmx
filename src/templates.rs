@@ -15,16 +15,19 @@ fn html_escape(s: &str) -> String {
 }
 
 pub fn render_note_card(note: &Note) -> Html<String> {
+    let button_class = "text-red-400 hover:text-red-600 text-lg font-bold";
+    let hx_target_note_id = format!("#note-{}", note.id);
+
     Html(format!(
         r#"
-        <div id="note-{}" class="bg-gray-700 p-3 rounded-md mb-2 border border-gray-600 flex justify-between items-center" style="background-color: {};">
-            <p class="text-gray-200">{}</p>
-            <button hx-delete="/api/notes/{}" hx-confirm="Are you sure you want to delete this note?" hx-swap="outerHTML swap:.2s" hx-target="#note-{}" class="text-red-400 hover:text-red-600 text-lg font-bold">
+        <div id="note-{0}" class="bg-gray-700 p-3 rounded-md mb-2 border border-gray-600 flex justify-between items-center" style="background-color: {1};">
+            <p class="text-gray-200">{2}</p>
+            <button hx-delete="/api/notes/{0}" hx-confirm="Are you sure you want to delete this note?" hx-swap="outerHTML swap:.2s" hx-target="{3}" class="{4}">
                 &times;
             </button>
         </div>
         "#,
-        note.id, note.color, html_escape(&note.title), note.id, note.id
+        note.id, note.color, html_escape(&note.title), hx_target_note_id, button_class
     ))
 }
 
@@ -52,11 +55,11 @@ pub async fn get_kanban_board_html(
             for wip_group in wip_groups {
                 html.push_str(&format!(
                     r#"
-                    <div id="wip-group-{}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
-                        <h2 class="text-2xl font-semibold mb-4 text-white">{}</h2>
-                        <div id="notes-for-wip-group-{}">
+                    <div id="wip-group-{0}" class="flex-1 bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-700">
+                        <h2 class="text-2xl font-semibold mb-4 text-white">{1}</h2>
+                        <div id="notes-for-wip-group-{0}">
                     "#,
-                    wip_group.id, html_escape(&wip_group.name), wip_group.id
+                    wip_group.id, html_escape(&wip_group.name)
                 ));
 
                 // Add sprites for this WIP group
@@ -75,11 +78,11 @@ pub async fn get_kanban_board_html(
                                 html.push_str(&format!(
                                     r#"
                                     <div class="flex items-center space-x-1 text-sm bg-gray-700 p-1 rounded-full pr-2">
-                                        <span class="font-mono text-lg">{}</span>
-                                        <span class="{} w-2 h-2 rounded-full"></span>
+                                        <span class="font-mono text-lg">{0}</span>
+                                        <span class="{1} w-2 h-2 rounded-full"></span>
                                     </div>
                                     "#,
-                                    html_escape(&sprite.sigil), status_color // Escape sprite sigil
+                                    html_escape(&sprite.sigil), status_color
                                 ));
                             }
                             html.push_str(r#"</div>"#);
@@ -100,26 +103,28 @@ pub async fn get_kanban_board_html(
                 html.push_str(r#"</div>"#); // End notes-for-wip-group div
                 
                 // Add Note Form
-                html.push_str(&format!(
-                    r#"
-                    <div class="mt-4 p-3 bg-gray-700 rounded-lg">
-                        <h3 class="text-lg font-semibold mb-2 text-white">Add New Note</h3>
-                        <form hx-post="/api/notes" hx-target="#notes-for-wip-group-{}" hx-swap="beforeend" hx-on::after-request="this.reset()">
-                            <input type="hidden" name="wip_group_id" value="{}">
-                            <input type="text" name="title" placeholder="Note Title" 
-                                   class="w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400" required>
-                            <input type="text" name="color" placeholder="Color (e.g., #RRGGBB)" 
-                                   class="w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-400">
-                            <button type="submit" 
-                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Add Note
-                            </button>
-                        </form>
-                    </div>
-                    "#,
-                    wip_group.id, wip_group.id
-                ));
-                html.push_str(r#"</div>"#); // End wip-group div
+                let input_class = "w-full p-2 mb-2 bg-gray-600 border border-gray-500 rounded text-white placeholder-gray-400";
+                let button_class = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded";
+                                                let hx_target_notes_for_wip_group = format!("#notes-for-wip-group-{}", wip_group.id);
+                                                html.push_str(&format!(
+                                                    r#"
+                                                    <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+                                                        <h3 class="text-lg font-semibold mb-2 text-white">Add New Note</h3>
+                                                        <form hx-post="/api/notes" hx-target="{0}" hx-swap="beforeend" hx-on::after-request="this.reset()">
+                                                            <input type="hidden" name="wip_group_id" value="{1}">
+                                                            <input type="text" name="title" placeholder="Note Title"
+                                                                   class="{2}" required>
+                                                            <input type="text" name="color" placeholder="Color (e.g., #RRGGBB)"
+                                                                   class="{2}">
+                                                            <button type="submit"
+                                                                    class="{3}">
+                                                                Add Note
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    "#,
+                                                    hx_target_notes_for_wip_group, wip_group.id, input_class, button_class
+                                                ));                html.push_str(r#"</div>"#); // End wip-group div
             }
             html.push_str(r#"</div>"#); // End flex container
             Html(html).into_response()

@@ -1,2 +1,3 @@
 ## Commit: panther-alpha - Added "Add Column" form to public/index.html.
 ## Commit: panther-alpha - Implemented "Add Note" form and "Delete Note" button in templates.rs.
+## Commit: panther-alpha - Refined `hx-target` logic for note deletion, fixed unused variable warnings in `src/templates.rs`, and updated `public/output.css`. Added SQLite WAL files to `.gitignore`.
