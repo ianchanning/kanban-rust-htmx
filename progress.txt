@@ -4,3 +4,4 @@
 ## Commit: panther-alpha - Implemented "Add Column" feature, including UI and backend logic for position calculation and sanitization.## Commit: lynx-alpha - Resolved 415 error by switching to Form extractor for HTMX submissions in WIP group and note creation.
 ## Commit: stable-deck - Resolved UI refresh bug by removing auto-polling, added manual 'Sonar Ping' refresh button, and fixed missing 'Add Note' form in new columns.
 ## Commit: obsidian-audit - Formalized Non-Intervention Protocol to enforce strict planning/auditing role.
+## Commit: rust-toolchain - Installed Rust 1.93.0, sqlx-cli, and SQLite database. Fixed heartbeat watchdog type annotation. Updated SQLx offline query cache. Built release binary and Tailwind CSS.

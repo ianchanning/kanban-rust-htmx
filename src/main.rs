@@ -307,7 +307,7 @@ async fn heartbeat_watchdog(pool: SqlitePool) {
 
         let minutes_ago = -expiration_threshold_minutes; // Use as i32
         let minutes_ago_str = minutes_ago.to_string(); // Bind to a variable with a longer lifetime
-        let result = sqlx::query!(
+        let result: Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error> = sqlx::query!(
             r#"
             UPDATE sprites
             SET status = 'Failed'

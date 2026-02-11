@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE sprites\n            SET status = 'Failed'\n            WHERE last_seen < datetime('now', ? || ' minutes ago') AND status != 'Failed'\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "2327840244ccad4d123043fe250afe949cbbe8f3f3295ad51c1474f8c619eebb"
+}
