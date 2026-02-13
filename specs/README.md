@@ -23,7 +23,7 @@ The **Octopus of Chaos** is a minimalist agent-fleet architecture. The **Host (O
 
 ### Infrastructure
 
-- **The Bridge (`lsprite.sh`)** — orchestrates the building of Caves and identity generation.
+- **The Bridge (`~/mothership/sandbox.sh`)** — orchestrates the building of Caves and identity generation.
 - **The Heartbeat (`ralph.sh`)** — the autonomous loop running inside the Sprite, driving development via `SPEC.md`.
 
 ---

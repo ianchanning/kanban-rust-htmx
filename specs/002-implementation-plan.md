@@ -6,7 +6,7 @@
 
 ## Phase 0: The Ledger (Foundational Law)
 
-- [ ] Create `event_log` table (append-only)
+- [x] Create `event_log` table (append-only)
 - [ ] Define event schema and types
 - [ ] Enforce write-only semantics at the DB layer
 
@@ -53,13 +53,13 @@
 - [ ] Implement the "Red Handle" Trigger: UI button to reset state.
 - [ ] Backend Emergency Blow (stateless rebuild)
 - [ ] Sprite Clean-Room Protocol: Automated `git reset --hard` hooks when switching notes.
-- [ ] Optional Integration: Connect the Red Handle to `lsprite.sh` logic (if possible via environment/shell).
+- [ ] Optional Integration: Connect the Red Handle to `~/mothership/sandbox.sh` logic (if possible via environment/shell).
 
 ---
 
 ## Deployment & Verification
 
-- [ ] Build via `lsprite.sh build`
+- [ ] Build via `~/mothership/sandbox.sh build`
 - [ ] SQLx query verification in CI
 - [ ] Simulated Sprite death (Depth-Crush test)
 - [ ] Browser reload + network interruption tests

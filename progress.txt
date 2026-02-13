@@ -1,0 +1,1 @@
+[2026-02-13 19:48] Completed: Create event_log table (append-only). Note: Established the foundational ledger table for audit trails using SQLx migrations.
