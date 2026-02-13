@@ -40,7 +40,7 @@ The **Octopus of Chaos** is a minimalist agent-fleet architecture. The **Host (O
 2. **Naming Convention:** Sprites are identified by a **Sigil** (Animal Emoji + NATO Letter, e.g., 🦂A).
 3. **Assignment Model:** Reversed. Notes are assigned to **WIP Groups**; Sprites are "leashed" to these groups.
 4. **Interface Strategy:** **Base Tailwind CSS** with a Submarine Industrial / Brutalist aesthetic.
-5. **Risk Management:** Established "Depth-Crush", "Bulkhead Failure", and "Signal Jamming" protocols. The **Red Handle** is the primary failsafe.
+5. **Risk Management:** Established "Depth-Crush", "Bulkhead Failure", and "Signal Jamming" protocols.
 
 ---
 
@@ -52,7 +52,6 @@ The **Octopus of Chaos** is a minimalist agent-fleet architecture. The **Host (O
 | Sprite     | Autonomous worker (Docker container)  |
 | Cave       | Isolated execution environment        |
 | Ledger     | Append-only `event_log`               |
-| Red Handle | Manual system-wide reset and resummon |
 
 ---
 
@@ -61,12 +60,13 @@ The **Octopus of Chaos** is a minimalist agent-fleet architecture. The **Host (O
 | File                         | Designation        | Description                                         | Key Descriptors                           |
 | :--------------------------- | :----------------- | :-------------------------------------------------- | :---------------------------------------- |
 | `001-kanban-core.md`         | Core Specification | First principles of Notes, WIP Groups, and Sprites. | Atomic Unit, Entropy_Signature, Heartbeat |
-| `002-implementation-plan.md` | Strike Plan        | Phased execution strategy for the Rust/HTMX build.  | Hull, Deck, Pulse, Ledger, Red Handle     |
+| `002-implementation-plan.md` | Strike Plan        | Phased execution strategy for the Rust/HTMX build.  | Hull, Deck, Pulse, Ledger                 |
 
 ---
 
 ## 5. Swarm Directives
 
+- **Step-wise Protocol:** Adhere strictly to the "ONE STEP, VERIFY, COMMIT, HALT" execution loop. Execute one checkbox, prove it works, commit, and halt.
 - **Conversation Creates Specs:** Major architectural shifts must be recorded as new numbered specs.
 - **No Inventions:** Sprites must adhere strictly to the Submarine Ledger.
 - **Ruggedness First:** If the code fights the browser or the OS, simplify the code.

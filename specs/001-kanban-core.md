@@ -102,7 +102,7 @@ The Ledger is the sole authority for reconstructing system state.
 
 - **Trigger:** Sprite heartbeat TTL exceeded
 - **Signal:** Sigil enters Failed state
-- **Recovery:** Automatic or Red Handle resummon
+- **Recovery:** Automatic resummon
 
 ### 5.2 Bulkhead Failure (Context Leakage)
 
@@ -115,14 +115,6 @@ The Ledger is the sole authority for reconstructing system state.
 - **Trigger:** Browser reload or network interruption
 - **Signal:** Stale sigil or board state
 - **Recovery:** Sonar Ping (Ledger re-sync)
-
----
-
-## 6. The Red Handle (Emergency Blow)
-
-- Manual, user-visible trigger
-- Purges volatile state
-- Reconstructs system from the Ledger
 
 ---
 
